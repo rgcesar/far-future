@@ -17,12 +17,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun toCommandsClick (view : View) {
-        val intent = Intent(this, DataGraph::class.java)
+        val intent = Intent(this, Commands::class.java)
         startActivity(intent)
     }
 
     fun toSettingsClick (view : View) {
-        val intent = Intent(this, DataGraph::class.java)
+        val intent = Intent(this, Settings::class.java)
         startActivity(intent)
     }
 
