@@ -16,4 +16,14 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    fun toCommandsClick (view : View) {
+        val intent = Intent(this, Commands::class.java)
+        startActivity(intent)
+    }
+
+    fun toSettingsClick (view : View) {
+        val intent = Intent(this, Settings::class.java)
+        startActivity(intent)
+    }
+
 }

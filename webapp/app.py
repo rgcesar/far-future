@@ -24,8 +24,9 @@ def index():
 	templateData = {
       'title' : 'GPIO input Status!',
       'button'  : buttonSts
-      }
+    }
 	return render_template('index.html', **templateData)
 
 if __name__ == "__main__":
-   app.run(host='0.0.0.0', port=80, debug=True)
+   #app.run(host='0.0.0.0', port=80, debug=True)
+   app.run()
