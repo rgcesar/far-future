@@ -11,5 +11,14 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
     <string name="back">Back</string>
-    <string name="test">Test</string>
+    <string name="goto_graph">Plant History</string>
+    <string name="goto_commands">Remote Controls</string>
+    <string name="goto_settings">Settings</string>
+
+
+    <string-array name="data_types_array">
+        <item>Humidity</item>
+        <item>Temperature</item>
+        <item>Light Level</item>
+    </string-array>
 </resources>
