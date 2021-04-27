@@ -11,6 +11,8 @@ import psutil
 import random 
 from random import randint
 import json
+from awsiotcore import bootAWSClient, publishMessage
+import argparse
 
 eventlet.monkey_patch()
 
@@ -22,6 +24,23 @@ app.config['SECRET_KEY'] = 'secret'
 socketio = SocketIO(app)
 cpu = CPUTemperature()
 
+
+parser = argparse.ArgumentParser(description="Send and receive messages through and MQTT connection.")
+parser.add_argument('--endpoint', required=True, help="Your AWS IoT custom endpoint, not including a port. " +
+                                                    "Ex: \"abcd123456wxyz-ats.iot.us-east-1.amazonaws.com\"")
+parser.add_argument('--cert', required=True, help="File path to your client certificate, in PEM format.")
+parser.add_argument('--key', required=True, help="File path to your private key, in PEM format.")
+parser.add_argument('--root-ca', required=True, help="File path to root certificate authority, in PEM format. " +
+                                    "Necessary if MQTT server uses a certificate that's not already in " +
+                                    "your trust store.")
+parser.add_argument('--client-id', default="test-", help="Client ID for MQTT connection.")
+parser.add_argument('--topic', default="test/topic", help="Topic to subscribe to, and publish messages to.")
+parser.add_argument('--signing-region', default='us-west-2', help="If you specify --use-web-socket, this " +
+    "is the region that will be used for computing the Sigv4 signature")
+
+args = parser.parse_args()
+
+
 def uart_read():
     ser = serial.Serial('/dev/ttySO')  # open serial port (port, baud rate)
     #print(ser.name)         # check which port was really used
@@ -29,32 +48,6 @@ def uart_read():
     data = ser.read()
     ser.close()# close port
     return data
-
-'''
-myMQTTClient = AWSIoTMQTTClient("MichaelMoran-RaspberryPi")
-myMQTTClient.configureEndpoint("a23h8x757yei1m-ats.iot.us-east-2.amazonaws.com", 8883)
-
-#root CA file, private key file, certificate - relative to your RaspberryPi directory
-myMQTTClient.configureCredentials("/home/pi/ee_475/far-future/AWSIoT/AmazonRootCA1.pem", 
-    "/home/pi/ee_475/far-future/AWSIoT/private.pem.key", 
-    "/home/pi/ee_475/far-future/AWSIoT/certificate.pem.crt")
-
-#connect to AWS IoT core
-myMQTTClient.configureOfflinePublishQueueing(10)
-myMQTTClient.configureDrainingFrequency(2)
-myMQTTClient.configureConnectDisconnectTimeout(10)
-myMQTTClient.configureMQTTOperationTimeout(5)
-
-print('Initiating IoT Core Topic ...')
-myMQTTClient.connect()
-
-def refreshPage(self, params, packet):
-    print('Recieved Message from AWS IoT Core')
-    print('Topic: ' + packet.topic)
-    print("Payload: ", (packet.payload))
-    redirect("/test", param=packet.payload)
-
-'''
 
 @app.route("/")
 def plant():
@@ -70,6 +63,7 @@ def plant():
 @socketio.on('connect')
 def test_connect():
     #print("client has connected")
+    bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
     socketio.emit('my response',  {'data':'Healthy'})
 
 @socketio.on('server')
@@ -88,11 +82,11 @@ def temp_handle():
             'available': available,
         }
 
-        socketio.sleep(.5)
+        socketio.sleep(3)
         #time.sleep(1)
-        
+        publishMessage(info)
         socketio.emit('client',  json.dumps(info))
-        socketio.sleep(0)
+        socketio.sleep(3)
 
 @app.route('/chart-data')
 def chart_data():
@@ -101,19 +95,10 @@ def chart_data():
             json_data = json.dumps(
                 {'time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'value': randint(0,10) * 100})
             yield f"data:{json_data}\n\n"
-            socketio.sleep(0)
+            socketio.sleep(3)
 
     return Response(generate_random_data(), mimetype='text/event-stream')
 
-
-
-
-
-
-# @app.route('/test')
-# def test(param="Michael is a supid face"):
-#     packet = myMQTTClient.subscribe("home/helloworld", 1, refreshPage)
-#     return render_template('test.html', packet=param)
 
 if __name__ == "__main__":
    #app.run(host='0.0.0.0', port=80, debug=True)

@@ -1,35 +1,30 @@
 import time
+import json
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
-def helloworld(self, params, packet):
-    print('Recieved Message from AWS IoT Core')
-    print('Topic: ' + packet.topic)
-    print("Payload: ", (packet.payload))
 
-myMQTTClient = AWSIoTMQTTClient("MichaelMoran-RaspberryPi")
-myMQTTClient.configureEndpoint("a23h8x757yei1m-ats.iot.us-east-2.amazonaws.com", 8883)
+def bootAWSClient(client_id, endpoint, root_ca, key, cert):
+    global awsMQTTClient
+    awsMQTTClient = AWSIoTMQTTClient(client_id)
+    awsMQTTClient.configureEndpoint(endpoint, 8883)
 
-#root CA file, private key file, certificate - relative to your RaspberryPi directory
-myMQTTClient.configureCredentials("/home/pi/ee_475/far-future/AWSIoT/AmazonRootCA1.pem", 
-    "/home/pi/ee_475/far-future/AWSIoT/private.pem.key", 
-    "/home/pi/ee_475/far-future/AWSIoT/certificate.pem.crt")
+    #root CA file, private key file, certificate - relative to your RaspberryPi directory
+    awsMQTTClient.configureCredentials(root_ca, key, cert)
 
-#connect to AWS IoT core
-myMQTTClient.configureOfflinePublishQueueing(-1)
-myMQTTClient.configureDrainingFrequency(2)
-myMQTTClient.configureConnectDisconnectTimeout(10)
-myMQTTClient.configureMQTTOperationTimeout(5)
+    #connect to AWS IoT core
+    awsMQTTClient.configureOfflinePublishQueueing(-1)
+    awsMQTTClient.configureDrainingFrequency(2)
+    awsMQTTClient.configureConnectDisconnectTimeout(10)
+    awsMQTTClient.configureMQTTOperationTimeout(5)
 
-print('Initiating IoT Core Topic ...')
-myMQTTClient.connect()
-myMQTTClient.subscribe("home/helloworld", 1, helloworld)
+    print('Initiating IoT Core Topic ...')
+    awsMQTTClient.connect()
 
-while(True):
-    time.sleep(5)
-
-#print("Publishing Message from RPI")
-#myMQTTClient.publish(
-#    topic="home/helloworld",
-#    QoS=1,
-#    payload="{'Message':'Message by RPI'}"
-#)
+def publishMessage(data):
+    print('Publishing data to iot/1/test')
+    global awsMQTTClient
+    awsMQTTClient.publish(
+        topic="iot/1/test",
+        QoS=1,
+        payload=json.dumps(data)
+    )
