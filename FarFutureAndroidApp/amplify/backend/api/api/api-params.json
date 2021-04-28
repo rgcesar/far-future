@@ -1,0 +1,35 @@
+{
+    "paths": [
+        {
+            "name": "/items",
+            "lambdaFunction": "farfutureandroidappe3055970",
+            "privacy": {
+                "open": true
+            },
+            "policyResourceName": "/items"
+        }
+    ],
+    "resourceName": "api",
+    "apiName": "api",
+    "functionArns": [
+        {
+            "lambdaFunction": "farfutureandroidappe3055970"
+        }
+    ],
+    "privacy": {
+        "auth": 0,
+        "unauth": 0,
+        "authRoleName": "amplify-farfutureandroidapp-dev-224129-authRole",
+        "unAuthRoleName": "amplify-farfutureandroidapp-dev-224129-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "farfutureandroidappe3055970",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ]
+}

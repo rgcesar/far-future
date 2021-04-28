@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-farfutureandroidapp-dev-224129-authRole",
+      "UnauthRoleArn": "arn:aws:iam::068785960170:role/amplify-farfutureandroidapp-dev-224129-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::068785960170:role/amplify-farfutureandroidapp-dev-224129-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-farfutureandroidapp-dev-224129-deployment",
+      "UnauthRoleName": "amplify-farfutureandroidapp-dev-224129-unauthRole",
+      "StackName": "amplify-farfutureandroidapp-dev-224129",
+      "StackId": "arn:aws:cloudformation:us-east-2:068785960170:stack/amplify-farfutureandroidapp-dev-224129/631c6740-a7e4-11eb-8e6c-06164577b6a6",
+      "AmplifyAppId": "d3d6fjm3pha24g"
+    },
+    "categories": {
+      "function": {
+        "farfutureandroidappe3055970": {
+          "deploymentBucketName": "amplify-farfutureandroidapp-dev-224129-deployment",
+          "s3Key": "amplify-builds/farfutureandroidappe3055970-4e34466559412f68714e-build.zip"
+        }
+      }
+    }
+  }
+}
