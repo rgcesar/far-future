@@ -35,6 +35,7 @@ android {
 
 dependencies {
 
+
     implementation 'com.amplifyframework:core:1.17.1'
     implementation 'com.amplifyframework:core-kotlin:0.1.2'
     implementation 'com.amplifyframework:aws-api:1.6.4'
