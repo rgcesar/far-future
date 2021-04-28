@@ -3,11 +3,7 @@ package com.example.farfuture
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import com.amplifyframework.AmplifyException
-import com.amplifyframework.api.aws.AWSApiPlugin
-import com.amplifyframework.core.Amplify
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
