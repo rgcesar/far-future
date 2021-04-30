@@ -2,6 +2,13 @@ import RPi.GPIO as GPIO
 import time
 import Adafruit_ADS1x15
 import math
+ 
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(23,GPIO.IN)
+ 
+for i in range(0,5):
+    print(GPIO.input(23))
+
 adc =Adafruit_ADS1x15.ADS1115()
 GAIN = 1
 PIN=7

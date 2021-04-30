@@ -24,7 +24,7 @@ app.config['SECRET_KEY'] = 'secret'
 socketio = SocketIO(app)
 cpu = CPUTemperature()
 
-
+'''
 parser = argparse.ArgumentParser(description="Send and receive messages through and MQTT connection.")
 parser.add_argument('--endpoint', required=True, help="Your AWS IoT custom endpoint, not including a port. " +
                                                     "Ex: \"abcd123456wxyz-ats.iot.us-east-1.amazonaws.com\"")
@@ -39,7 +39,7 @@ parser.add_argument('--signing-region', default='us-west-2', help="If you specif
     "is the region that will be used for computing the Sigv4 signature")
 
 args = parser.parse_args()
-
+'''
 
 def uart_read():
     ser = serial.Serial('/dev/HC06')  # open serial port (port, baud rate)
@@ -63,7 +63,7 @@ def plant():
 @socketio.on('connect')
 def test_connect():
     #print("client has connected")
-    bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
+   # bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
     socketio.emit('my response',  {'data':'Healthy'})
 
 @socketio.on('server')
@@ -75,7 +75,7 @@ def temp_handle():
         time_now = datetime.datetime.now()
         timeString = time_now.strftime("%Y-%m-%d %H:%M:%S")
         #t = str(round(cpu.temperature*1.0))
-        t = rcv
+        t = repr(rcv)
         memory = psutil.virtual_memory()
         available = round(memory.available/1024.0/1024.0,1)
         total = round(memory.total/1024.0/1024.0,1)
