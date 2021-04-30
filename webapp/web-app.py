@@ -42,7 +42,7 @@ args = parser.parse_args()
 
 
 def uart_read():
-    ser = serial.Serial('/dev/ttySO')  # open serial port (port, baud rate)
+    ser = serial.Serial('/dev/HC06')  # open serial port (port, baud rate)
     #print(ser.name)         # check which port was really used
     #ser.write(b'hello')     # write a string
     data = ser.read()
@@ -68,10 +68,14 @@ def test_connect():
 
 @socketio.on('server')
 def temp_handle():
+    port = serial.Serial("/dev/rfcomm0", baudrate=9600, timeout=3.0)
     while True:
+        rcv = port.readline()
+
         time_now = datetime.datetime.now()
         timeString = time_now.strftime("%Y-%m-%d %H:%M:%S")
-        t = str(round(cpu.temperature*1.0))
+        #t = str(round(cpu.temperature*1.0))
+        t = rcv
         memory = psutil.virtual_memory()
         available = round(memory.available/1024.0/1024.0,1)
         total = round(memory.total/1024.0/1024.0,1)
