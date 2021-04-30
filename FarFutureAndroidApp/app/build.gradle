@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.farfuture"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -35,11 +35,14 @@ android {
 
 dependencies {
 
-
+    implementation ('io.socket:socket.io-client:2.0.0') {
+        exclude group: 'org.json', module: 'json'
+    }
     implementation 'com.amplifyframework:core:1.17.1'
     implementation 'com.amplifyframework:core-kotlin:0.1.2'
     implementation 'com.amplifyframework:aws-api:1.6.4'
     implementation 'com.amazonaws:aws-android-sdk-apigateway-core:2.3.2'
+    implementation 'com.amplifyframework:aws-auth-cognito:1.17.1'
     implementation 'com.amazonaws:aws-android-sdk-cognito:2.3.2' //TODO: use or del
     //coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"

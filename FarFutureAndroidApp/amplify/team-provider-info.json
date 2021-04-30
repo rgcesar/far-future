@@ -17,6 +17,9 @@
           "deploymentBucketName": "amplify-farfutureandroidapp-dev-224129-deployment",
           "s3Key": "amplify-builds/farfutureandroidappe3055970-4e34466559412f68714e-build.zip"
         }
+      },
+      "auth": {
+        "farfutureandroidappad4b4e51": {}
       }
     }
   }

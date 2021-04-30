@@ -21,5 +21,13 @@
         }
       ]
     }
+  },
+  "auth": {
+    "farfutureandroidappad4b4e51": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false
+    }
   }
 }
