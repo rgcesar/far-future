@@ -84,7 +84,7 @@ def temp_handle():
 
         socketio.sleep(3)
         #time.sleep(1)
-        publishMessage(info)
+        #publishMessage(info)
         socketio.emit('client',  json.dumps(info))
         socketio.sleep(3)
 
