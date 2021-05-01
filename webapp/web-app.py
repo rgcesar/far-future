@@ -41,13 +41,19 @@ parser.add_argument('--signing-region', default='us-west-2', help="If you specif
 args = parser.parse_args()
 '''
 
-def uart_read():
-    ser = serial.Serial('/dev/HC06')  # open serial port (port, baud rate)
+#global count
+
+#def uart_read(count):
+    #ser = serial.Serial('/dev/HC06')  # open serial port (port, baud rate)
     #print(ser.name)         # check which port was really used
     #ser.write(b'hello')     # write a string
-    data = ser.read()
-    ser.close()# close port
-    return data
+    #data = ser.read()
+    #ser.close()# close port
+    #return data
+    #if count = 1000:
+     #   rcv = port.readline()
+    #else:
+    #return repr(rcv)
 
 @app.route("/")
 def plant():
@@ -69,12 +75,20 @@ def test_connect():
 @socketio.on('server')
 def temp_handle():
     port = serial.Serial("/dev/rfcomm0", baudrate=9600, timeout=3.0)
+    rcv = port.readline()
+    count = 100
     while True:
-        rcv = port.readline()
+        
+        
 
         time_now = datetime.datetime.now()
         timeString = time_now.strftime("%Y-%m-%d %H:%M:%S")
         #t = str(round(cpu.temperature*1.0))
+        if count <= 0:
+            count = 100
+            rcv = port.readline()
+        else:
+            count = count - 1
         t = repr(rcv)
         memory = psutil.virtual_memory()
         available = round(memory.available/1024.0/1024.0,1)
