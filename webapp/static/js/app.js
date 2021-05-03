@@ -82,11 +82,12 @@ $(document).ready(function(){
 
     
     socket.on('client', function(data) {
+        // 'time' 'temp' 'humidity' 'pressure' 'soilmoist' 'lightlevel'
         const jdata = JSON.parse(data);
         timed.innerText = 'The date and time on the server is: ' + jdata.time;
         temp.innerText = 'Temp: ' + jdata.temp + ' C°';
-        av.innerText = 'Available Memory: ' + jdata.available + 'M';
-        total.innerText = 'Total Memory: ' + jdata.total + 'M';
+        humidity.innerText = 'Humidity: ' + jdata.humidity + ' %';
+        pressure.innerText = 'Baro. Pressure: ' + jdata.pressure + ' hPa';
     });
     
 });

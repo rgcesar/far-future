@@ -22,12 +22,16 @@
     
     <!-- Quick Stats (Add picture here)-->
     <div class="card my-5 shadow p-3 mb-5 bg-white rounded">
-      <img src="/static/plant.jpg" class="card-img-top img-fluid" alt="...">
+      <!--img src="/static/plant.jpg" class="card-img-top img-fluid" alt="..."-->
+        <img src="/stream" class="card-img-top img-fluid" alt="...">
+   
       <div class="card-body text-center">
-        <h5 class="card-title" id="log">Plant Status: Healthy</h5>
-        <p class="card-text" id="timed"> </p>
-        <p class="card-text" id="total"> </p>
-        <p class="card-text" id="av"> </p>
+        <p class="card-title" id="log">Plant Status: Healthy</h5>
+        <p class="card-text" id="temp"> Temp: </p>
+        <p class="card-text" id="humidity"> Humidity: </p>
+        <p class="card-text" id="pressure">  Pressure: </p>
+        <p class="card-text" id="timed"> Time: </p>
+        
         
         
       </div>
@@ -37,7 +41,7 @@
     <!-- Temperature Card -->
     <div class="card my-5 shadow p-3 mb-5 bg-white rounded">
       <div class="card-body">
-        <h5 class="card-title" id="temp">Temp: {{ amb_temp }} C°</h5>
+        <h5 class="card-title" >Temp: temp C°</h5>
         <p class="card-text"></p>
         <button type="button"  class="btn btn-primary" id="fan" onclick="connect()">Toggle Fan</button>
         <a href="#" class="btn btn-primary">Toggle Light</a>

@@ -13,6 +13,9 @@ from random import randint
 import json
 from awsiotcore import bootAWSClient, publishMessage
 import argparse
+import re
+import cv2
+import picamera
 
 eventlet.monkey_patch()
 
@@ -23,6 +26,10 @@ app.config['SECRET_KEY'] = 'secret'
 #async_mode = 'eventlet'
 socketio = SocketIO(app)
 cpu = CPUTemperature()
+port = serial.Serial("/dev/rfcomm0", baudrate=9600, timeout=3.0)
+vc = cv2.VideoCapture(0) 
+socketio.sleep(3)
+
 
 '''
 parser = argparse.ArgumentParser(description="Send and receive messages through and MQTT connection.")
@@ -41,19 +48,24 @@ parser.add_argument('--signing-region', default='us-west-2', help="If you specif
 args = parser.parse_args()
 '''
 
-#global count
+def read_bme():
+    rcv = port.readline()
+    rcvs = repr(rcv)
+    rcvs2 = [0, 0, 0]
+    # python regex to extract three floats
+    rcvs = re.findall(r"[-+.]?\d*\.\d+|\d+", rcvs)
+    rcvs[0] = round((float(rcvs[0]) * (5.0/9.0) + 32) , 3)
+    if len(rcvs) != 3:
+        return ['0','0','0']
+    #print(rcvs)
+    return rcvs
 
-#def uart_read(count):
-    #ser = serial.Serial('/dev/HC06')  # open serial port (port, baud rate)
-    #print(ser.name)         # check which port was really used
-    #ser.write(b'hello')     # write a string
-    #data = ser.read()
-    #ser.close()# close port
-    #return data
-    #if count = 1000:
-     #   rcv = port.readline()
-    #else:
-    #return repr(rcv)
+def gen(): 
+   while True: 
+       rval, frame = vc.read() 
+       cv2.imwrite('frame.jpg', frame) 
+       yield (b'--frame\r\n' 
+              b'Content-Type: image/jpeg\r\n\r\n' + open('frame.jpg', 'rb').read() + b'\r\n') 
 
 @app.route("/")
 def plant():
@@ -72,39 +84,48 @@ def test_connect():
    # bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
     socketio.emit('my response',  {'data':'Healthy'})
 
+@socketio.on('light')
+def light_toggle():
+    # toggle the light
+    light = 0
+
+@socketio.on('water')
+def water_plant():
+    # water the plant
+    water = 0
+
+@socketio.on('fan')
+def fan_toggle():
+    # toggle the fan
+    fan = 0
+
 @socketio.on('server')
 def temp_handle():
-    port = serial.Serial("/dev/rfcomm0", baudrate=9600, timeout=3.0)
-    rcv = port.readline()
-    count = 100
     while True:
-        
-        
-
         time_now = datetime.datetime.now()
         timeString = time_now.strftime("%Y-%m-%d %H:%M:%S")
+        rcvs = read_bme()
+        t, press, hum = rcvs
+        moist = 0
+        light_level = 0
         #t = str(round(cpu.temperature*1.0))
-        if count <= 0:
-            count = 100
-            rcv = port.readline()
-        else:
-            count = count - 1
-        t = repr(rcv)
-        memory = psutil.virtual_memory()
-        available = round(memory.available/1024.0/1024.0,1)
-        total = round(memory.total/1024.0/1024.0,1)
+        #memory = psutil.virtual_memory()
+        #available = round(memory.available/1024.0/1024.0,1)
+        #total = round(memory.total/1024.0/1024.0,1)
         info = {
             'time': timeString,
-            'temp': t,
-            'total': total,
-            'available': available,
+            'temp': str(t),
+            'humidity': str(hum),
+            'pressure': str(press),
+            'soilmoist': str(moist),
+            'lightlevel': str(light_level),
         }
-
-        socketio.sleep(3)
+        #print(info)
+        socketio.sleep(.5)
         #time.sleep(1)
         #publishMessage(info)
         socketio.emit('client',  json.dumps(info))
-        socketio.sleep(3)
+        #socketio.sleep(.5)
 
 @app.route('/chart-data')
 def chart_data():
@@ -113,13 +134,18 @@ def chart_data():
             json_data = json.dumps(
                 {'time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'value': randint(0,10) * 100})
             yield f"data:{json_data}\n\n"
-            socketio.sleep(3)
+            #socketio.sleep(3)
 
     return Response(generate_random_data(), mimetype='text/event-stream')
+
+@app.route('/stream')
+def stream():
+    # Stream video
+    return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == "__main__":
    #app.run(host='0.0.0.0', port=80, debug=True)
    #t = Thread(target=temp_handle)
    #t.start()
-   socketio.run(app, host='0.0.0.0', port=80, debug=True)
+   socketio.run(app, host='0.0.0.0', port=80, debug=False)
