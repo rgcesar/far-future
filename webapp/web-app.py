@@ -16,6 +16,8 @@ import argparse
 import re
 import cv2
 import picamera
+from water import setup, dispense, soilmoist, lightsensor, fan, light
+#import water
 
 eventlet.monkey_patch()
 
@@ -28,7 +30,11 @@ socketio = SocketIO(app)
 cpu = CPUTemperature()
 port = serial.Serial("/dev/rfcomm0", baudrate=9600, timeout=3.0)
 vc = cv2.VideoCapture(0) 
+setup()
 socketio.sleep(3)
+
+light0 = 0
+fan0 = 0
 
 
 '''
@@ -47,6 +53,8 @@ parser.add_argument('--signing-region', default='us-west-2', help="If you specif
 
 args = parser.parse_args()
 '''
+
+
 
 def read_bme():
     rcv = port.readline()
@@ -81,23 +89,25 @@ def plant():
 @socketio.on('connect')
 def test_connect():
     #print("client has connected")
-   # bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
+    #bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
     socketio.emit('my response',  {'data':'Healthy'})
 
 @socketio.on('light')
 def light_toggle():
     # toggle the light
-    light = 0
+    light(light0)
+    light0 = ~light0
 
 @socketio.on('water')
 def water_plant():
-    # water the plant
-    water = 0
+    # water the plant, two seconds
+    dispense(2)
 
 @socketio.on('fan')
 def fan_toggle():
     # toggle the fan
-    fan = 0
+    fan(fan0)
+    fan0 = ~fan0
 
 @socketio.on('server')
 def temp_handle():
@@ -106,6 +116,8 @@ def temp_handle():
         timeString = time_now.strftime("%Y-%m-%d %H:%M:%S")
         rcvs = read_bme()
         t, press, hum = rcvs
+        #moist = float(soilmoist())
+        #light_level = float(light())
         moist = 0
         light_level = 0
         #t = str(round(cpu.temperature*1.0))
@@ -149,3 +161,4 @@ if __name__ == "__main__":
    #t = Thread(target=temp_handle)
    #t.start()
    socketio.run(app, host='0.0.0.0', port=80, debug=False)
+   #print(soilmoist())

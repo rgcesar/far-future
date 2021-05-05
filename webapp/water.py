@@ -13,8 +13,10 @@ adc =Adafruit_ADS1x15.ADS1115()
 GAIN = 1
 PIN=7
 def setup():
-    GPIO.setmode(GPIO.BOARD)
+    #GPIO.setmode(GPIO.BOARD)
     GPIO.setup(PIN, GPIO.OUT)
+    GPIO.setup(18, GPIO.OUT)
+    GPIO.setup(25, GPIO.OUT)
     GPIO.output(PIN, GPIO.HIGH)
     time.sleep(0.1)
 
@@ -34,6 +36,25 @@ def dispense(t = 1):
     print("DISPENSE")
     time.sleep(t)
     GPIO.output(PIN, GPIO.HIGH)
+
+def light(light_value):
+    if light_value:
+        GPIO.output(18, True)
+    else:
+        GPIO.output(18, False)
+
+def soilmoist():
+    # soil moisture on port 0
+    return adc.read_adc(0, gain=GAIN)
+
+def lightsensor():
+    return adc.read_adc(1, gain=2)
+
+def fan(fan_value):
+    if fan_value:
+        GPIO.output(25, True)
+    else:
+        GPIO.output(25, False)
 
 def loop():
     #while True:
