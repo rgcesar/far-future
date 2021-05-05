@@ -26,17 +26,34 @@ class Commands : AppCompatActivity() {
 
     }
 
-    fun send() {
+    fun send_light_command(view: View) {
         val app : FarFutureApp = application as FarFutureApp
-        val message = "test message"
         val socket : Socket? = app.getSocket()
-        if (TextUtils.isEmpty(message) || !(socket!!.connected())) {
+        if (!(socket!!.connected())) {
             Log.e(SOCKET_TAG, "Send failed")
             return
         }
+        socket.emit("toggleLight")
+    }
 
+    fun send_water_command(view: View) {
+        val app : FarFutureApp = application as FarFutureApp
+        val socket : Socket? = app.getSocket()
+        if (!(socket!!.connected())) {
+            Log.e(SOCKET_TAG, "Send failed")
+            return
+        }
+        socket.emit("toggleWater")
+    }
 
-        socket.emit("test message", message)
+    fun send_fan_command(view: View) {
+        val app : FarFutureApp = application as FarFutureApp
+        val socket : Socket? = app.getSocket()
+        if (!(socket!!.connected())) {
+            Log.e(SOCKET_TAG, "Send failed")
+            return
+        }
+        socket.emit("toggleFan")
     }
 
 

@@ -11,6 +11,9 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
     <string name="back">Back</string>
+    <string name="send_fan_command">Toggle fan</string>
+    <string name="send_light_command">Toggle light</string>
+    <string name="send_water_command">Toggle water</string>
     <string name="goto_graph">Plant History</string>
     <string name="goto_commands">Remote Controls</string>
     <string name="goto_settings">Settings</string>
@@ -20,5 +23,6 @@
         <item>Humidity</item>
         <item>Temperature</item>
         <item>Light Level</item>
+        <item>Pressure</item>
     </string-array>
 </resources>

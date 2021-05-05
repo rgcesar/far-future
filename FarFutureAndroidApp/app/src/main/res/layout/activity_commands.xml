@@ -7,28 +7,50 @@
     tools:context=".Commands">
 
     <Button
+        android:id="@+id/sendFButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="send_fan_command"
+        android:text="@string/send_light_command"
+        app:layout_constraintBottom_toTopOf="@id/sendLButton"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <Button
+        android:id="@+id/sendLButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="send_light_command"
+        android:text="@string/send_light_command"
+        app:layout_constraintBottom_toTopOf="@id/sendWButton"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sendFButton" />
+
+    <Button
+        android:id="@+id/sendWButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="send_water_command"
+        android:text="@string/send_light_command"
+        app:layout_constraintBottom_toTopOf="@id/backButton"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sendLButton" />
+
+    <Button
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="onBackClick"
         android:text="@string/back"
-        android:onClick="onBackClick"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
-
-    <Button
-        android:id="@+id/sendButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="send"
-        android:onClick="onBackClick"
-        app:layout_constraintTop_toBottomOf="@id/backButton"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:layout_constraintTop_toBottomOf="@id/sendLButton"
+        app:layout_constraintVertical_bias="0.8" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
