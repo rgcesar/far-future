@@ -1,6 +1,7 @@
 import datetime
 from flask import Flask, render_template, redirect, url_for, Response
 from flask_socketio import SocketIO
+import numpy as np
 from threading import Thread
 import serial
 import time
@@ -33,6 +34,8 @@ vc = cv2.VideoCapture(0)
 setup()
 socketio.sleep(3)
 
+#global light0 
+#global fan0
 light0 = 0
 fan0 = 0
 
@@ -95,7 +98,9 @@ def test_connect():
 @socketio.on('light')
 def light_toggle():
     # toggle the light
+    global light0
     light(light0)
+    
     light0 = ~light0
 
 @socketio.on('water')
@@ -106,7 +111,9 @@ def water_plant():
 @socketio.on('fan')
 def fan_toggle():
     # toggle the fan
+    global fan0
     fan(fan0)
+    
     fan0 = ~fan0
 
 @socketio.on('server')
@@ -116,10 +123,10 @@ def temp_handle():
         timeString = time_now.strftime("%Y-%m-%d %H:%M:%S")
         rcvs = read_bme()
         t, press, hum = rcvs
-        #moist = float(soilmoist())
-        #light_level = float(light())
-        moist = 0
-        light_level = 0
+        moist = float(soilmoist())
+        light_level = float(lightsensor())
+        #moist = 0
+        #light_level = 0
         #t = str(round(cpu.temperature*1.0))
         #memory = psutil.virtual_memory()
         #available = round(memory.available/1024.0/1024.0,1)

@@ -31,6 +31,8 @@
         <p class="card-text" id="humidity"> Humidity: </p>
         <p class="card-text" id="pressure">  Pressure: </p>
         <p class="card-text" id="timed"> Time: </p>
+        <p class="card-text" id="lightlevel"> Light level: </p>
+        <p class="card-text" id="soilmoisture"> Soil Moisture: </p>
         
         
         
@@ -41,10 +43,13 @@
     <!-- Temperature Card -->
     <div class="card my-5 shadow p-3 mb-5 bg-white rounded">
       <div class="card-body">
-        <h5 class="card-title" >Temp: temp C°</h5>
+        <!--h5 class="card-title" >Temp: temp C°</h5-->
         <p class="card-text"></p>
-        <button type="button"  class="btn btn-primary" id="fan" onclick="connect()">Toggle Fan</button>
-        <a href="#" class="btn btn-primary">Toggle Light</a>
+        <button type="button"  class="btn btn-primary" id="fan">Toggle Fan</button>
+        <button type="button"  class="btn btn-primary" id="light">Toggle Light</button>
+        <button type="button"  class="btn btn-primary" id="dispense">Dispense</button>
+        <!--a href="#" class="btn btn-primary">Toggle Light</a>
+        <a href="#" class="btn btn-primary">Dispense 4 seconds</a-->
       </div>
     </div>
     <!-- End Temperature Card-->

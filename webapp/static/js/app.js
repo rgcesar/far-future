@@ -88,6 +88,16 @@ $(document).ready(function(){
         temp.innerText = 'Temp: ' + jdata.temp + ' C°';
         humidity.innerText = 'Humidity: ' + jdata.humidity + ' %';
         pressure.innerText = 'Baro. Pressure: ' + jdata.pressure + ' hPa';
+        soilmoisture.innerText = 'Soil Moisture: ' + jdata.soilmoist + ' ? ';
+        lightlevel.innerText = 'Light Level: ' + jdata.lightlevel + ' ? ';
+    });
+
+    $('#fan').click(function(event){
+        socket.emit('fan');
+    });
+
+    $('#dispense').click(function(event){
+        socket.emit('water');
     });
     
 });
