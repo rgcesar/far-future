@@ -130,6 +130,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  // test code to verify that the connection between STM32 and Raspberry Pi is established
   while (1)
   {
 	system_reset(); // if something goes wrong, system can be reset by the Reset button on the interface
