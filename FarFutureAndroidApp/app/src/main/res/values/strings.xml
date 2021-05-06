@@ -13,11 +13,16 @@
     <string name="back">Back</string>
     <string name="send_fan_command">Toggle fan</string>
     <string name="send_light_command">Toggle light</string>
-    <string name="send_water_command">Toggle water</string>
+    <string name="send_water_command">Dispense water</string>
     <string name="goto_graph">Plant History</string>
     <string name="goto_commands">Remote Controls</string>
     <string name="goto_settings">Settings</string>
 
+
+    <string name="send_fan_off_command">Fan Off</string>
+    <string name="send_fan_on_command">Fan On</string>
+    <string name="send_light_on_command">Light On</string>
+    <string name="send_light_off_command">Light Off</string>
 
     <string-array name="data_types_array">
         <item>Humidity</item>

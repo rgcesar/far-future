@@ -21,8 +21,7 @@ import kotlin.concurrent.thread
 
 class FarFutureApp : Application() {
 
-    // private val URL = "http://4e2fb8b750fc.ngrok.io/"
-    private val URL = "http://f3de44f777b0.ngrok.io/"
+    private val URL = "http://b14b098b05d2.ngrok.io/"
     private var socket : Socket? = null
     private val SOCKET_TAG = "SocketIO"
 
@@ -95,6 +94,7 @@ class FarFutureApp : Application() {
                 Pressure.add(pressure)
                 Humidity.add(humidity)
                 LightLevel.add(light)
+
 
             }
             connectSocket()
@@ -170,7 +170,6 @@ class FarFutureApp : Application() {
         val d1 : LocalDateTime = LocalDateTime.of(year, month, date, hour, minute, second)
         return Date.from(d1.atZone(ZoneId.systemDefault()).toInstant())
     }
-
-
-
 }
+
+

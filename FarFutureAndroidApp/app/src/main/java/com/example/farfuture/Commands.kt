@@ -26,14 +26,24 @@ class Commands : AppCompatActivity() {
 
     }
 
-    fun send_light_command(view: View) {
+    fun send_light_on_command(view: View) {
         val app : FarFutureApp = application as FarFutureApp
         val socket : Socket? = app.getSocket()
         if (!(socket!!.connected())) {
             Log.e(SOCKET_TAG, "Send failed")
             return
         }
-        socket.emit("toggleLight")
+        socket.emit("lighton")
+    }
+
+    fun send_light_off_command(view: View) {
+        val app : FarFutureApp = application as FarFutureApp
+        val socket : Socket? = app.getSocket()
+        if (!(socket!!.connected())) {
+            Log.e(SOCKET_TAG, "Send failed")
+            return
+        }
+        socket.emit("lightoff")
     }
 
     fun send_water_command(view: View) {
@@ -43,19 +53,28 @@ class Commands : AppCompatActivity() {
             Log.e(SOCKET_TAG, "Send failed")
             return
         }
-        socket.emit("toggleWater")
+        socket.emit("water")
     }
 
-    fun send_fan_command(view: View) {
+    fun send_fan_on_command(view: View) {
         val app : FarFutureApp = application as FarFutureApp
         val socket : Socket? = app.getSocket()
         if (!(socket!!.connected())) {
             Log.e(SOCKET_TAG, "Send failed")
             return
         }
-        socket.emit("toggleFan")
+        socket.emit("fanon")
     }
 
+    fun send_fan_off_command(view: View) {
+        val app : FarFutureApp = application as FarFutureApp
+        val socket : Socket? = app.getSocket()
+        if (!(socket!!.connected())) {
+            Log.e(SOCKET_TAG, "Send failed")
+            return
+        }
+        socket.emit("fanoff")
+    }
 
     fun onBackClick (view : View) {
         val intent = Intent(this, MainActivity::class.java)
