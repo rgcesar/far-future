@@ -92,8 +92,20 @@ $(document).ready(function(){
         lightlevel.innerText = 'Light Level: ' + jdata.lightlevel + ' ? ';
     });
 
-    $('#fan').click(function(event){
-        socket.emit('fan');
+    $('#fanoff').click(function(event){
+        socket.emit('fanoff');
+    });
+
+    $('#fanon').click(function(event){
+        socket.emit('fanon');
+    });
+
+    $('#lighton').click(function(event){
+        socket.emit('lighton');
+    });
+
+    $('#lightoff').click(function(event){
+        socket.emit('lightoff');
     });
 
     $('#dispense').click(function(event){

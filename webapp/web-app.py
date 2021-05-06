@@ -40,7 +40,7 @@ light0 = 0
 fan0 = 0
 
 
-'''
+
 parser = argparse.ArgumentParser(description="Send and receive messages through and MQTT connection.")
 parser.add_argument('--endpoint', required=True, help="Your AWS IoT custom endpoint, not including a port. " +
                                                     "Ex: \"abcd123456wxyz-ats.iot.us-east-1.amazonaws.com\"")
@@ -55,20 +55,25 @@ parser.add_argument('--signing-region', default='us-west-2', help="If you specif
     "is the region that will be used for computing the Sigv4 signature")
 
 args = parser.parse_args()
-'''
+
 
 
 
 def read_bme():
-    rcv = port.readline()
-    rcvs = repr(rcv)
-    rcvs2 = [0, 0, 0]
+    #socketio.sleep(2)
+    port.flushInput()
+    rcv = port.readline() # read in bytes
+    socketio.sleep(.1)
+    rcv = port.readline() # read in bytes
+    rcvs = repr(rcv) # turn it into a string
+    rcvs2 = [0, 0, 0] # an array with 3 values
     # python regex to extract three floats
-    rcvs = re.findall(r"[-+.]?\d*\.\d+|\d+", rcvs)
-    rcvs[0] = round((float(rcvs[0]) * (5.0/9.0) + 32) , 3)
+    rcvs = re.findall(r"[-+.]?\d*\.\d+|\d+", rcvs) 
+    #rcvs[0] = round((float(rcvs[0]) * (5.0/9.0) + 32) , 3) # convert to f
     if len(rcvs) != 3:
         return ['0','0','0']
-    #print(rcvs)
+    print(rcvs)
+    #port.close()
     return rcvs
 
 def gen(): 
@@ -92,32 +97,39 @@ def plant():
 @socketio.on('connect')
 def test_connect():
     #print("client has connected")
-    #bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
+    bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
+
     socketio.emit('my response',  {'data':'Healthy'})
 
-@socketio.on('light')
-def light_toggle():
+@socketio.on('lighton')
+def light_on():
     # toggle the light
-    global light0
-    light(light0)
-    
-    light0 = ~light0
+    #global light0
+    light(1)
+    #light0 = ~light0
+
+@socketio.on('lightoff')
+def light_off():
+    light(0)
 
 @socketio.on('water')
 def water_plant():
     # water the plant, two seconds
     dispense(2)
 
-@socketio.on('fan')
-def fan_toggle():
+@socketio.on('fanon')
+def fan_on():
     # toggle the fan
-    global fan0
-    fan(fan0)
-    
-    fan0 = ~fan0
+    #global fan0
+    fan(0)
+    #fan0 = ~fan0
+
+@socketio.on('fanoff')
+def fan_off():
+    fan(1)
 
 @socketio.on('server')
-def temp_handle():
+def temp_handle(self):
     while True:
         time_now = datetime.datetime.now()
         timeString = time_now.strftime("%Y-%m-%d %H:%M:%S")
@@ -142,7 +154,7 @@ def temp_handle():
         #print(info)
         socketio.sleep(.5)
         #time.sleep(1)
-        #publishMessage(info)
+        publishMessage(info)
         socketio.emit('client',  json.dumps(info))
         #socketio.sleep(.5)
 
