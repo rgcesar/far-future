@@ -16,13 +16,13 @@ $(document).ready(function(){
         log.innerText = 'Plant Status: ' + msg.data;
     });
 
-    $(document).ready(function () {
+    
         const config = {
             type: 'line',
             data: {
                 labels: [],
                 datasets: [{
-                    label: "Random Dataset",
+                    label: "Temperature (C)",
                     backgroundColor: 'rgb(255, 99, 132)',
                     borderColor: 'rgb(255, 99, 132)',
                     data: [],
@@ -33,7 +33,7 @@ $(document).ready(function(){
                 responsive: true,
                 title: {
                     display: true,
-                    text: 'This is a realtime chart'
+                    text: 'Historical Temperature data'
                 },
                 tooltips: {
                     mode: 'index',
@@ -66,9 +66,9 @@ $(document).ready(function(){
 
         const lineChart = new Chart(context, config);
 
-        const source = new EventSource("/chart-data");
+        //const source = new EventSource("/chart-data");
 
-        source.onmessage = function (event) {
+        /*source.onmessage = function (event) {
             const data = JSON.parse(event.data);
             if (config.data.labels.length === 20) {
                 config.data.labels.shift();
@@ -77,8 +77,8 @@ $(document).ready(function(){
             config.data.labels.push(data.time);
             config.data.datasets[0].data.push(data.value);
             lineChart.update();
-        }
-    });
+        }*/
+    
 
     
     socket.on('client', function(data) {
@@ -90,6 +90,15 @@ $(document).ready(function(){
         pressure.innerText = 'Baro. Pressure: ' + jdata.pressure + ' hPa';
         soilmoisture.innerText = 'Soil Moisture: ' + jdata.soilmoist + ' ? ';
         lightlevel.innerText = 'Light Level: ' + jdata.lightlevel + ' ? ';
+
+        if (config.data.labels.length === 75) {
+            config.data.labels.shift();
+            config.data.datasets[0].data.shift();
+        }
+        config.data.labels.push(jdata.time);
+        config.data.datasets[0].data.push(jdata.temp);
+        lineChart.update();
+
     });
 
     $('#fanoff').click(function(event){

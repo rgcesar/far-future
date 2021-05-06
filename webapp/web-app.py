@@ -40,7 +40,7 @@ light0 = 0
 fan0 = 0
 
 
-
+'''
 parser = argparse.ArgumentParser(description="Send and receive messages through and MQTT connection.")
 parser.add_argument('--endpoint', required=True, help="Your AWS IoT custom endpoint, not including a port. " +
                                                     "Ex: \"abcd123456wxyz-ats.iot.us-east-1.amazonaws.com\"")
@@ -55,6 +55,7 @@ parser.add_argument('--signing-region', default='us-west-2', help="If you specif
     "is the region that will be used for computing the Sigv4 signature")
 
 args = parser.parse_args()
+'''
 
 
 
@@ -97,7 +98,7 @@ def plant():
 @socketio.on('connect')
 def test_connect():
     #print("client has connected")
-    bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
+    #bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
 
     socketio.emit('my response',  {'data':'Healthy'})
 
@@ -129,7 +130,8 @@ def fan_off():
     fan(1)
 
 @socketio.on('server')
-def temp_handle(self):
+def temp_handle():
+    #pass
     while True:
         time_now = datetime.datetime.now()
         timeString = time_now.strftime("%Y-%m-%d %H:%M:%S")
@@ -152,22 +154,13 @@ def temp_handle(self):
             'lightlevel': str(light_level),
         }
         #print(info)
-        socketio.sleep(.5)
+        #socketio.sleep(.1)
         #time.sleep(1)
-        publishMessage(info)
+
+        #publishMessage(info)
+
         socketio.emit('client',  json.dumps(info))
         #socketio.sleep(.5)
-
-@app.route('/chart-data')
-def chart_data():
-    def generate_random_data():
-        while True:
-            json_data = json.dumps(
-                {'time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'value': randint(0,10) * 100})
-            yield f"data:{json_data}\n\n"
-            #socketio.sleep(3)
-
-    return Response(generate_random_data(), mimetype='text/event-stream')
 
 @app.route('/stream')
 def stream():

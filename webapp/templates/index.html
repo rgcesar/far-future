@@ -22,8 +22,8 @@
     
     <!-- Quick Stats (Add picture here)-->
     <div class="card my-5 shadow p-3 mb-5 bg-white rounded">
-      <!--img src="/static/plant.jpg" class="card-img-top img-fluid" alt="...""-->
-        <img src="/stream" class="card-img-top img-fluid" alt="...">
+      <!--img src="/static/plant.jpg" class="card-img-top img-fluid" alt="..."-->
+        <img src="{{ url_for('stream') }}" class="card-img-top img-fluid" alt="...">
    
       <div class="card-body text-center">
         <p class="card-title" id="log">Plant Status: Healthy</h5>
@@ -60,7 +60,7 @@
       <div class="card-body">
         <h5 class="card-title">Historical Data</h5>
         <p class="card-text"></p>
-        <canvas width="200" height="200" id="canvas"></canvas>
+        <canvas width="500" height="500" id="canvas"></canvas>
         <a href="#" class="btn btn-primary">Download</a>
       </div>
     </div>
