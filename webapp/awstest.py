@@ -4,6 +4,7 @@ import json
 import random
 import argparse
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
+import requests
 
 
 
@@ -26,7 +27,11 @@ def test():
     for i in range(0,10):
         storeJsonList(createSampleJSON())
     global jsonList
-    publishJson()
+    time_now = datetime.datetime.now()
+    time = time_now.strftime("%Y-%m-%d %H")
+    publishJson(time)
+    response = requestDataDynamoDB(time)
+    process(response)
     
 
 def bootAWSClient(endpoint, root_ca, key, cert):
@@ -63,7 +68,7 @@ def storeJsonList(jsonObj):
     global jsonList
     jsonList.insert(0, jsonObj)
 
-def publishJson():
+def publishJson(time):
     global jsonList
     tempAgg = 0
     humAgg = 0
@@ -77,9 +82,8 @@ def publishJson():
         pressureAgg = pressureAgg + int(jsonObj['pressure'])
         soilAgg = soilAgg + int(jsonObj['soilmoist'])
         lightAgg = lightAgg + int(jsonObj['lightlevel'])
-    time_now = datetime.datetime.now()
     data = {
-        'timep': time_now.strftime("%Y-%m-%d %H:%M"),
+        'timep': time,
         'temp': str(float(tempAgg)/numReadings),
         'humidity': str(float(humAgg)/numReadings),
         'pressure': str(float(pressureAgg)/numReadings),
@@ -95,6 +99,29 @@ def publishJson():
         payload=json.dumps(data)
     )
     jsonList = []
+
+def requestDataDynamoDB(time):
+    #URL = "https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/2021-05-13 15/"
+    URL = "https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/"
+    # headers
+    headers = {"Content-Type":"application/json"}
+    # querysting parameter
+    params = {"time":time}
+    # for Post
+    data= {}
+
+    response = requests.request("GET", URL, params=params, headers=headers)
+    if response.status_code != 200:
+        print("ERROR: Something went wrong with the request. Status Code: " + str(response.status_code))
+        print(response.headers)
+    else:
+        print("API Response Recieved: " + str(response.status_code))
+    print(json.dumps(response.json(), indent=3))
+    return response
+
+def process(response):
+    payload = response.json()
+    print(payload["Items"][0]["payload"]["M"]["humidity"]["S"])
 
 if __name__ == '__main__':
     test()
