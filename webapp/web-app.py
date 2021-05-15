@@ -18,9 +18,11 @@ import re
 import cv2
 import picamera
 from water import setup, dispense, soilmoist, lightsensor, fan, light
+from get_stream import get_stream
+from write_stream import write_stream
 #import water
 
-eventlet.monkey_patch()
+#eventlet.monkey_patch()
 
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
@@ -40,7 +42,7 @@ light0 = 0
 fan0 = 0
 
 
-'''
+
 parser = argparse.ArgumentParser(description="Send and receive messages through and MQTT connection.")
 parser.add_argument('--endpoint', required=True, help="Your AWS IoT custom endpoint, not including a port. " +
                                                     "Ex: \"abcd123456wxyz-ats.iot.us-east-1.amazonaws.com\"")
@@ -55,14 +57,16 @@ parser.add_argument('--signing-region', default='us-west-2', help="If you specif
     "is the region that will be used for computing the Sigv4 signature")
 
 args = parser.parse_args()
-'''
+
 
 
 
 
 def read_bme():
     #socketio.sleep(2)
+    socketio.sleep(0)
     port.flushInput()
+    socketio.sleep(0)
     rcv = port.readline() # read in bytes
     socketio.sleep(.1)
     rcv = port.readline() # read in bytes
@@ -73,16 +77,40 @@ def read_bme():
     #rcvs[0] = round((float(rcvs[0]) * (5.0/9.0) + 32) , 3) # convert to f
     if len(rcvs) != 3:
         return ['0','0','0']
-    print(rcvs)
+    #print(rcvs)
     #port.close()
     return rcvs
 
+
 def gen(): 
    while True: 
+       socketio.sleep(0)
        rval, frame = vc.read() 
        cv2.imwrite('frame.jpg', frame) 
+       socketio.sleep(0)
        yield (b'--frame\r\n' 
               b'Content-Type: image/jpeg\r\n\r\n' + open('frame.jpg', 'rb').read() + b'\r\n') 
+
+
+'''
+def gen():
+    video_getter = get_stream(0).start()
+    video_shower = write_stream(video_getter.frame).start()
+
+    while True:
+        if video_getter.stopped or video_shower.stopped:
+            video_shower.stop()
+            video_getter.stop()
+            break
+
+        frame = video_getter.frame
+       
+        cv2.imwrite('frame.jpg', frame)
+        #video_shower.frame = frame
+
+        yield (b'--frame\r\n' 
+              b'Content-Type: image/jpeg\r\n\r\n' + open('frame.jpg', 'rb').read() + b'\r\n')
+'''
 
 @app.route("/")
 def plant():
@@ -97,8 +125,8 @@ def plant():
 
 @socketio.on('connect')
 def test_connect():
-    #print("client has connected")
-    #bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
+    print("client has connected")
+    bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
 
     socketio.emit('my response',  {'data':'Healthy'})
 
@@ -135,36 +163,31 @@ def temp_handle():
     while True:
         time_now = datetime.datetime.now()
         timeString = time_now.strftime("%Y-%m-%d %H:%M:%S")
+        socketio.sleep(0)
         rcvs = read_bme()
         t, press, hum = rcvs
-        moist = float(soilmoist())
-        light_level = float(lightsensor())
-        #moist = 0
-        #light_level = 0
-        #t = str(round(cpu.temperature*1.0))
-        #memory = psutil.virtual_memory()
-        #available = round(memory.available/1024.0/1024.0,1)
-        #total = round(memory.total/1024.0/1024.0,1)
+        moist = soilmoist()
+        socketio.sleep(0)
+        light_level = lightsensor()
+        socketio.sleep(0)
         info = {
-            'time': timeString,
-            'temp': str(t),
-            'humidity': str(hum),
-            'pressure': str(press),
-            'soilmoist': str(moist),
-            'lightlevel': str(light_level),
+            "time": timeString,
+            "temp": str(t),
+            "humidity": str(hum),
+            "pressure": str(press),
+            "soilmoist": str("{:.1f}".format(moist)),
+            "lightlevel": str("{:.1f}".format(light_level)),
         }
-        #print(info)
-        #socketio.sleep(.1)
-        #time.sleep(1)
-
-        #publishMessage(info)
-
+        print(info)
+        publishMessage(info)
+        socketio.sleep(0)
         socketio.emit('client',  json.dumps(info))
         #socketio.sleep(.5)
 
 @app.route('/stream')
 def stream():
     # Stream video
+    socketio.sleep(0)
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -173,4 +196,3 @@ if __name__ == "__main__":
    #t = Thread(target=temp_handle)
    #t.start()
    socketio.run(app, host='0.0.0.0', port=80, debug=False)
-   #print(soilmoist())
