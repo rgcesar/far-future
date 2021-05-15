@@ -9,6 +9,7 @@
 }*/
 
 $(document).ready(function(){
+
     var socket = io();
     socket.on('my response', function(msg) {
         socket.emit('server')
@@ -17,16 +18,18 @@ $(document).ready(function(){
     });
 
     
+
+    
         const config = {
             type: 'line',
             data: {
-                labels: [],
+                labels: ['Temperature'],
                 datasets: [{
                     label: "Temperature (C)",
                     backgroundColor: 'rgb(255, 99, 132)',
                     borderColor: 'rgb(255, 99, 132)',
                     data: [],
-                    fill: false,
+                    fill: true,
                 }],
             },
             options: {
@@ -84,12 +87,12 @@ $(document).ready(function(){
     socket.on('client', function(data) {
         // 'time' 'temp' 'humidity' 'pressure' 'soilmoist' 'lightlevel'
         const jdata = JSON.parse(data);
-        timed.innerText = 'The date and time on the server is: ' + jdata.time;
         temp.innerText = 'Temp: ' + jdata.temp + ' C°';
         humidity.innerText = 'Humidity: ' + jdata.humidity + ' %';
         pressure.innerText = 'Baro. Pressure: ' + jdata.pressure + ' hPa';
-        soilmoisture.innerText = 'Soil Moisture: ' + jdata.soilmoist + ' ? ';
-        lightlevel.innerText = 'Light Level: ' + jdata.lightlevel + ' ? ';
+        soilmoisture.innerText = 'Soil Moisture: ' + jdata.soilmoist + ' % ';
+        lightlevel.innerText = 'Light Level: ' + jdata.lightlevel + ' % ';
+        timed.innerText = 'Server Time: ' + jdata.time;
 
         if (config.data.labels.length === 75) {
             config.data.labels.shift();

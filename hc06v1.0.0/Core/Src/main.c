@@ -1,45 +1,90 @@
-/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
   ******************************************************************************
-  * @attention
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * Redistribution and use in source and binary forms, with or without modification,
+  * are permitted provided that the following conditions are met:
+  *   1. Redistributions of source code must retain the above copyright notice,
+  *      this list of conditions and the following disclaimer.
+  *   2. Redistributions in binary form must reproduce the above copyright notice,
+  *      this list of conditions and the following disclaimer in the documentation
+  *      and/or other materials provided with the distribution.
+  *   3. Neither the name of STMicroelectronics nor the names of its contributors
+  *      may be used to endorse or promote products derived from this software
+  *      without specific prior written permission.
+  *
+  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */
-/* USER CODE END Header */
+
+
+/**
+  ****************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are between comment pairs USER CODE BEGIN and USER CODE END.
+ -----------------------------------------------------------------------------
+* @author   : Daniel Vu		                                                  *
+* @version  : v1.0                                                            *
+* @ide      : STM32CubeIDE                                                    *
+* @brief    : HC-06 Wireless Configuration STM32F4 code                       *
+* @license  : MIT                                                             *
+ -----------------------------------------------------------------------------
+    This software "BluetoothModule(HC-06) v1.0" is for configuring the HC-06
+		wirelessly.
+
+		Copyright (c) 2018 Veysel Gökdemir
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge,
+    publish, distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+    AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
+  *****************************************************************************
+*/
+
+
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "stm32f4xx_hal.h"
 
-/* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdbool.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 /* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
@@ -47,9 +92,10 @@ UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+
 char rx6_buffer[50], tx6_buffer[50], rx2_buffer[50], tx2_buffer[50];
-bool led_state=false;
-int mod_state = 0, conf_indeks = 0;
+bool led_state=false, led_red=false, led_orange=false, led_green=false, led_blue=false;
+int mode_state=0, conf_index=0;
 
 /* USER CODE END PV */
 
@@ -58,6 +104,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART6_UART_Init(void);
 static void MX_USART2_UART_Init(void);
+
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
@@ -76,7 +123,7 @@ void clear_buffer()
 
 void system_reset()
 {
-	if(rx6_buffer[0] == 's' || rx2_buffer[0] == 's'){
+	if(rx6_buffer[0] == 'p' || rx2_buffer[0] == 'p'){
 
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET); // The orange led blinks before the stm board is reset
 		HAL_Delay(200);
@@ -98,154 +145,183 @@ void system_reset()
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
+	/* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+	/* USER CODE END 1 */
 
-  /* MCU Configuration----------------------------------------------------------*/
+	/* MCU Configuration----------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
 
-  /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+	/* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+	/* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+	/* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_USART6_UART_Init();
-  MX_USART2_UART_Init();
-  /* USER CODE BEGIN 2 */
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	MX_USART6_UART_Init();
+	MX_USART2_UART_Init();
+	/* USER CODE BEGIN 2 */
 
 	__HAL_UART_DISABLE(&huart2);
 
-  /* USER CODE END 2 */
+	/* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  // test code to verify that the connection between STM32 and Raspberry Pi is established
-  while (1)
-  {
-	system_reset(); // if something goes wrong, system can be reset by the Reset button on the interface
-	// mod_state-->0:normal mode, 1:configuration mode
-	switch(mod_state){
+	/* Infinite loop */
+	/* USER CODE BEGIN WHILE */
+	while (1)
+	{
+		system_reset(); // if something goes wrong, system can be reset by the Reset button on the interface
+		// mode_state-->0:usart6 mode, 1:usart2 mode
 
-		case 0:	// Normal mode
-			HAL_UART_Receive(&huart6, (uint8_t*)rx6_buffer, 50, 500);
+		clear_buffer(); //clear all buffers
+		switch(mode_state){
 
-			if(rx6_buffer[0] == '1'){
-
-				HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Conf_Mod"), 500);
-				mod_state = 1;
-
-			}
-
-			if(rx6_buffer[0] == 'o' && rx6_buffer[1] == 'n'){
-
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_SET);
-				if(led_state != true)
-					HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "-->Led is on"), 500);
-				led_state = true;
-
-			}
-			else if(rx6_buffer[0] == 'o' && rx6_buffer[1] == 'f' && rx6_buffer[2] == 'f'){
-
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
-				if(led_state != false)
-					HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "-->Led is off"), 500);
-				led_state = false;
-			}
-			break;
-
-		case 1: //Configuration mode
-			switch(conf_indeks){
-
-			case 0:
-				clear_buffer(); //clear all buffers
+			case 0:	// USART6 mode
 				HAL_UART_Receive(&huart6, (uint8_t*)rx6_buffer, 50, 500);
 
-				if(rx6_buffer[0] == '0'){
+				if(rx6_buffer[0] == '1'){
 
-					HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Normal_Mod"), 500);
-					mod_state = 0;
+					HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Use USART2 [Y/N]?"), 500);
+					mode_state = 1;
 
 				}
 
-				//check the received command whether to start with AT command or not.
-				if(rx6_buffer[0] == 'A' && rx6_buffer[1] == 'T'){
+				if(rx6_buffer[0] == 'o' && rx6_buffer[1] == 'n'){
 
-					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
-					HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "#"), 1000); // the "#" is sent to the interface for closing the com port
-					HAL_Delay(100);
+					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_SET);
+					if(led_state != true)
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "Received-->All leds are on\n"), 500);
+					led_state = true;
 
-					__HAL_UART_DISABLE(&huart6);
-					__HAL_UART_ENABLE(&huart2);
-					conf_indeks = 1;
+				}
+				else if(rx6_buffer[0] == 'o' && rx6_buffer[1] == 'f' && rx6_buffer[2] == 'f'){
 
+					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+					if(led_state != false)
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "Received-->All leds are off\n"), 500);
+					led_state = false;
 				}
 				break;
 
-			case 1:
-				// the stm32 board is communicating with the hc-06 through the usart2 (AT Command Mode)
-				HAL_Delay(50);
-				HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "%s",rx6_buffer), 500);
-				HAL_Delay(50);
-				HAL_UART_Receive(&huart2, (uint8_t*)rx2_buffer, 50, 500);
+			case 1: //Configuration mode
+				switch(conf_index){
 
-				if(rx2_buffer[0] == 'O' && rx2_buffer[1] == 'K'){
+				case 0:
+					//clear_buffer(); //clear all buffers
+					HAL_UART_Receive(&huart6, (uint8_t*)rx6_buffer, 50, 500);
 
-					__HAL_UART_DISABLE(&huart2);
-					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET); //the blue led shows that the response of the hc-06 is OK...
-					__HAL_UART_ENABLE(&huart6);
-					conf_indeks = 2;
+					if(rx6_buffer[0] == 'N'){
 
-				}
-				else if(rx2_buffer[0] == '$') { // When the reply is wrong, the usart2 receives the "$" character (instead of the usart6) from the interface
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Returning to USART6\n"), 500);
+						mode_state = 0;
 
-					__HAL_UART_DISABLE(&huart2);
-					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET); //the red led shows that the reply is wrong
-					__HAL_UART_ENABLE(&huart6);
+					} else if(rx6_buffer[0] == 'Y'){
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Opening USART2\n"), 500); // a message is sent to the interface for closing the com port
+						HAL_Delay(100);
+
+						__HAL_UART_DISABLE(&huart6);
+						__HAL_UART_ENABLE(&huart2);
+						conf_index = 1;
+					}
+					break;
+				case 1:
 					HAL_Delay(50);
-					HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, " -->Error, please try again...!"), 500);
-					conf_indeks = 0;	//if the reply is not OK, jump to the case 0 and wait new command
+					HAL_UART_Receive(&huart2, (uint8_t*)rx2_buffer, 50, 500);
+					led_state = false;
+					if(rx2_buffer[0] == '0'){
+
+						HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "/Opening USART6\n"), 500);
+						__HAL_UART_DISABLE(&huart2);
+						__HAL_UART_ENABLE(&huart6);
+						conf_index = 0;
+						mode_state = 0;
+
+					}
+					if(rx2_buffer[0] == 'd'){
+
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+						if(led_green != true)
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Green led is on\n"), 500);
+						led_green = true;
+						led_orange = false;
+						led_red = false;
+						led_blue = false;
+
+
+					}
+					else if(rx2_buffer[0] == 's'){
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+						if(led_orange != true)
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Orange led is on\n"), 500);
+						led_green = false;
+						led_orange = true;
+						led_red = false;
+						led_blue = false;
+
+					}
+					else if(rx2_buffer[0] == 'a'){
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_15, GPIO_PIN_RESET);
+						if(led_red != true)
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Red led is on\n"), 500);
+						led_green = false;
+						led_orange = false;
+						led_red = true;
+						led_blue = false;
+
+					}
+					else if(rx2_buffer[0] == 'w'){
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14, GPIO_PIN_RESET);
+						if(led_blue != true)
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Blue led is on\n"), 500);
+						led_green = false;
+						led_orange = false;
+						led_red = false;
+						led_blue = true;
+
+					}
+					break;
 				}
 				break;
 
-			case 2:
-				HAL_Delay(50);
-				HAL_UART_Receive(&huart6, (uint8_t*)rx6_buffer, 50, 500);
+		}
 
-				// wait for the $ character to send the data received from the hc-06 to the interface
-				if(rx6_buffer[0] == '$'){
+		/* USER CODE END WHILE */
 
-					HAL_Delay(50);
-					HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "%s",rx2_buffer), 500);
-
-					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET); //the green led shows that the response of the hc-06 is transmitted to the interface
-					conf_indeks = 0;
-
-				}
-				break;
-
-			}
-			break;
+		/* USER CODE BEGIN 3 */
 
 	}
+	/* USER CODE END 3 */
 
-	/* USER CODE END WHILE */
+}
 
-	/* USER CODE BEGIN 3 */
-
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @param  file: The file name as string.
+  * @param  line: The line in file as a number.
+  * @retval None
+  */
+void _Error_Handler(char *file, int line)
+{
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  while(1)
+  {
   }
-/* USER CODE END 3 */
-
+  /* USER CODE END Error_Handler_Debug */
 }
 
 /**
@@ -254,19 +330,21 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Configure the main internal regulator output voltage
-  */
+  RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+
+    /**Configure the main internal regulator output voltage
+    */
   __HAL_RCC_PWR_CLK_ENABLE();
+
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+
+    /**Initializes the CPU, AHB and APB busses clocks
+    */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 8;
@@ -275,10 +353,11 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
+
+    /**Initializes the CPU, AHB and APB busses clocks
+    */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
@@ -288,25 +367,25 @@ void SystemClock_Config(void)
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
+
+    /**Configure the Systick interrupt time
+    */
+  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+
+    /**Configure the Systick
+    */
+  HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+
+  /* SysTick_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
+/* USART2 init function */
 static void MX_USART2_UART_Init(void)
 {
 
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
   huart2.Init.BaudRate = 9600;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
@@ -317,29 +396,15 @@ static void MX_USART2_UART_Init(void)
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
   if (HAL_UART_Init(&huart2) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
 
 }
 
-/**
-  * @brief USART6 Initialization Function
-  * @param None
-  * @retval None
-  */
+/* USART6 init function */
 static void MX_USART6_UART_Init(void)
 {
 
-  /* USER CODE BEGIN USART6_Init 0 */
-
-  /* USER CODE END USART6_Init 0 */
-
-  /* USER CODE BEGIN USART6_Init 1 */
-
-  /* USER CODE END USART6_Init 1 */
   huart6.Instance = USART6;
   huart6.Init.BaudRate = 9600;
   huart6.Init.WordLength = UART_WORDLENGTH_8B;
@@ -350,22 +415,22 @@ static void MX_USART6_UART_Init(void)
   huart6.Init.OverSampling = UART_OVERSAMPLING_16;
   if (HAL_UART_Init(&huart6) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
-  /* USER CODE BEGIN USART6_Init 2 */
-
-  /* USER CODE END USART6_Init 2 */
 
 }
 
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
+/** Configure pins as
+        * Analog
+        * Input
+        * Output
+        * EVENT_OUT
+        * EXTI
+*/
 static void MX_GPIO_Init(void)
 {
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -388,19 +453,6 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  while(1)
-  {
-  }
-  /* USER CODE END Error_Handler_Debug */
-}
 
 #ifdef  USE_FULL_ASSERT
 /**
@@ -410,7 +462,7 @@ void Error_Handler(void)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(uint8_t *file, uint32_t line)
+void assert_failed(uint8_t* file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
@@ -419,4 +471,13 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 #endif /* USE_FULL_ASSERT */
 
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

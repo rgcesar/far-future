@@ -2,7 +2,7 @@
 <!---<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.svg') }}">--->
   <link rel="icon" type="data:image/svg+xml" href="static/favicon.svg">
    <head>
-      <title>Plant Monitoring System</title>
+      <title>Plant</title>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -18,21 +18,25 @@
 
    <body>
     <div class="container d-flex mx-auto">
-    <div class="col-sm-6 mx-auto my-2">
+    <div class="col-sm-12 mx-auto my-2">
     
     <!-- Quick Stats (Add picture here)-->
-    <div class="card my-5 shadow p-3 mb-5 bg-white rounded">
-      <!--img src="/static/plant.jpg" class="card-img-top img-fluid" alt="..."-->
-        <img src="{{ url_for('stream') }}" class="card-img-top img-fluid" alt="...">
-   
-      <div class="card-body text-center">
-        <p class="card-title" id="log">Plant Status: Healthy</h5>
-        <p class="card-text" id="temp"> Temp: </p>
-        <p class="card-text" id="humidity"> Humidity: </p>
-        <p class="card-text" id="pressure">  Pressure: </p>
-        <p class="card-text" id="timed"> Time: </p>
-        <p class="card-text" id="lightlevel"> Light level: </p>
-        <p class="card-text" id="soilmoisture"> Soil Moisture: </p>
+    <div class="card my-5 shadow  mb-5 bg-white rounded">
+      <div class="card-header text-center">
+        <h2>Live Video Feed and Quick Stats</h2>
+      </div>
+      <a href="/stream">
+      <img src="/static/plant.jpg" class="card-img-top img-fluid" alt="...">
+        <!--img src="{{ url_for('stream') }}" class="card-img-top img-fluid" alt="..."-->
+   	</a>
+      <div class="card-body">
+        <h5 class="card-title" id="log">Plant Status: Healthy</h5>
+        <h5 class="card-text" id="temp"> Temp: </h5>
+        <h5 class="card-text" id="humidity"> Humidity: </h5>
+        <h5 class="card-text" id="pressure">  Pressure: </h5>
+        <h5 class="card-text" id="timed"> Time: </h5>
+        <h5 class="card-text" id="lightlevel"> Light level: </h5>
+        <h5 class="card-text" id="soilmoisture"> Soil Moisture: </h5>
         
         
         
@@ -41,26 +45,33 @@
     <!-- End Quick Stats-->
 
     <!-- Temperature Card -->
-    <div class="card my-5 shadow p-3 mb-5 bg-white rounded">
+    <div class="card my-5 shadow-lg mb-5 bg-white rounded">
+      <div class="card-header text-center">
+        <h2>Commands</h2>
+      </div>
+      
       <div class="card-body">
         <!--h5 class="card-title" >Temp: temp C°</h5-->
         <p class="card-text"></p>
-        <button type="button"  class="btn btn-primary" id="fanoff">Fan off</button>
-        <button type="button"  class="btn btn-primary" id="fanon">Fan on</button>
-        <button type="button"  class="btn btn-primary" id="lightoff">Light Off</button>
-        <button type="button"  class="btn btn-primary" id="lighton">Light On</button>
-        <button type="button"  class="btn btn-primary" id="dispense">Dispense</button>
+        <button type="button"  class="btn btn-primary m-1" id="fanoff">Fan off</button>
+        <button type="button"  class="btn btn-primary m-1" id="fanon">Fan on</button>
+        <button type="button"  class="btn btn-primary m-1" id="lightoff">Light Off</button>
+        <button type="button"  class="btn btn-primary m-1" id="lighton">Light On</button>
+        <button type="button"  class="btn btn-primary m-1" id="dispense">Dispense</button>
         <!--a href="#" class="btn btn-primary">Toggle Light</a>
         <a href="#" class="btn btn-primary">Dispense 4 seconds</a-->
       </div>
     </div>
     <!-- End Temperature Card-->
 
-    <div class="card  shadow p-3 mb-5 bg-white rounded">
+    <div class="card  shadow-lg mb-5 bg-white rounded">
+      <div class="card-header text-center">
+        <h2>Historical Data</h2>
+      </div>
       <div class="card-body">
-        <h5 class="card-title">Historical Data</h5>
+        <!--h5 class="card-title">Historical Data</h5-->
         <p class="card-text"></p>
-        <canvas width="500" height="500" id="canvas"></canvas>
+        <canvas  id="canvas"></canvas>
         <a href="#" class="btn btn-primary">Download</a>
       </div>
     </div>

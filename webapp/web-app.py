@@ -13,6 +13,8 @@ import argparse
 import re
 import cv2
 from water import setup, dispense, soilmoist, lightsensor, fan, light
+from get_stream import get_stream
+from write_stream import write_stream
 
 eventlet.monkey_patch()
 
@@ -55,6 +57,7 @@ args = parser.parse_args()
 
 def read_bme():
     port.flushInput()
+    socketio.sleep(0)
     rcv = port.readline() # read in bytes
     socketio.sleep(.1)
     rcv = port.readline() # read in bytes
@@ -66,12 +69,36 @@ def read_bme():
     print(rcvs)
     return rcvs
 
+
 def gen(): 
    while True: 
+       socketio.sleep(0)
        rval, frame = vc.read() 
        cv2.imwrite('frame.jpg', frame) 
+       socketio.sleep(0)
        yield (b'--frame\r\n' 
               b'Content-Type: image/jpeg\r\n\r\n' + open('frame.jpg', 'rb').read() + b'\r\n') 
+
+
+'''
+def gen():
+    video_getter = get_stream(0).start()
+    video_shower = write_stream(video_getter.frame).start()
+
+    while True:
+        if video_getter.stopped or video_shower.stopped:
+            video_shower.stop()
+            video_getter.stop()
+            break
+
+        frame = video_getter.frame
+       
+        cv2.imwrite('frame.jpg', frame)
+        #video_shower.frame = frame
+
+        yield (b'--frame\r\n' 
+              b'Content-Type: image/jpeg\r\n\r\n' + open('frame.jpg', 'rb').read() + b'\r\n')
+'''
 
 @app.route("/")
 def plant():
@@ -119,17 +146,20 @@ def temp_handle():
     while True:
         time_now = datetime.datetime.now()
         timeString = time_now.strftime("%Y-%m-%d %H:%M:%S")
+        socketio.sleep(0)
         rcvs = read_bme()
         t, press, hum = rcvs
-        moist = float(soilmoist())
-        light_level = float(lightsensor())
+        moist = soilmoist()
+        socketio.sleep(0)
+        light_level = lightsensor()
+        socketio.sleep(0)
         info = {
-            'time': timeString,
-            'temp': str(t),
-            'humidity': str(hum),
-            'pressure': str(press),
-            'soilmoist': str(moist),
-            'lightlevel': str(light_level),
+            "time": timeString,
+            "temp": str(t),
+            "humidity": str(hum),
+            "pressure": str(press),
+            "soilmoist": str("{:.1f}".format(moist)),
+            "lightlevel": str("{:.1f}".format(light_level)),
         }
         storeMessage()
         if time_now.minute == 0:
@@ -139,6 +169,7 @@ def temp_handle():
 @app.route('/stream')
 def stream():
     # Stream video
+    socketio.sleep(0)
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
