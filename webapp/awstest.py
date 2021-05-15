@@ -101,7 +101,6 @@ def publishJson(time):
     jsonList = []
 
 def requestDataDynamoDB(time):
-    #URL = "https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/2021-05-13 15/"
     URL = "https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/"
     # headers
     headers = {"Content-Type":"application/json"}

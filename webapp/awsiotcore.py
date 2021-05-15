@@ -2,6 +2,11 @@ import time
 import json
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
+global tempAgg
+global humidityAgg
+global pressureAgg
+global soilAgg
+global lightAgg
 
 def bootAWSClient(client_id, endpoint, root_ca, key, cert):
     global awsMQTTClient
