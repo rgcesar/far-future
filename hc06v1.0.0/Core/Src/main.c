@@ -42,18 +42,16 @@
   ** This notice applies to any and all portions of this file
   * that are between comment pairs USER CODE BEGIN and USER CODE END.
  -----------------------------------------------------------------------------
-* @author   : Veysel GÃ¶kdemir                                                 *
-* @website  : https://veyselgokdemir.com                                      *
-* @link     : https://wp.me/paajyp-vt                                         *
+* @author   : Daniel Vu		                                                  *
 * @version  : v1.0                                                            *
-* @ide      : Keil                                                            *
+* @ide      : STM32CubeIDE                                                    *
 * @brief    : HC-06 Wireless Configuration STM32F4 code                       *
 * @license  : MIT                                                             *
  -----------------------------------------------------------------------------
     This software "BluetoothModule(HC-06) v1.0" is for configuring the HC-06
 		wirelessly.
 
-		Copyright (c) 2018 Veysel GÃ¶kdemir
+		Copyright (c) 2018 Veysel Gökdemir
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -187,7 +185,7 @@ int main(void)
 		clear_buffer(); //clear all buffers
 		switch(mode_state){
 
-			case 0:	// Normal mode
+			case 0:	// USART6 mode
 				HAL_UART_Receive(&huart6, (uint8_t*)rx6_buffer, 50, 500);
 
 				if(rx6_buffer[0] == '1'){
@@ -197,19 +195,19 @@ int main(void)
 
 				}
 
-				if(rx6_buffer[0] == 'n'){
+				if(rx6_buffer[0] == 'o' && rx6_buffer[1] == 'n'){
 
 					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_SET);
 					if(led_state != true)
-						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "-->Led is on"), 500);
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "Received-->All leds are on\n"), 500);
 					led_state = true;
 
 				}
-				else if(rx6_buffer[0] == 'f'){
+				else if(rx6_buffer[0] == 'o' && rx6_buffer[1] == 'f' && rx6_buffer[2] == 'f'){
 
 					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 					if(led_state != false)
-						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "-->Led is off"), 500);
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "Received-->All leds are off\n"), 500);
 					led_state = false;
 				}
 				break;
@@ -223,12 +221,12 @@ int main(void)
 
 					if(rx6_buffer[0] == 'N'){
 
-						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Returning to USART6"), 500);
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Returning to USART6\n"), 500);
 						mode_state = 0;
 
 					} else if(rx6_buffer[0] == 'Y'){
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
-						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Opening USART2"), 500); // a message is sent to the interface for closing the com port
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Opening USART2\n"), 500); // a message is sent to the interface for closing the com port
 						HAL_Delay(100);
 
 						__HAL_UART_DISABLE(&huart6);
@@ -239,10 +237,10 @@ int main(void)
 				case 1:
 					HAL_Delay(50);
 					HAL_UART_Receive(&huart2, (uint8_t*)rx2_buffer, 50, 500);
-
+					led_state = false;
 					if(rx2_buffer[0] == '0'){
 
-						HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "/Opening USART6"), 500);
+						HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "/Opening USART6\n"), 500);
 						__HAL_UART_DISABLE(&huart2);
 						__HAL_UART_ENABLE(&huart6);
 						conf_index = 0;
@@ -254,50 +252,46 @@ int main(void)
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 						if(led_green != true)
-							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "-->Green led is on"), 500);
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Green led is on\n"), 500);
 						led_green = true;
 						led_orange = false;
 						led_red = false;
 						led_blue = false;
 
-						led_state = true;
 
 					}
 					else if(rx2_buffer[0] == 's'){
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 						if(led_orange != true)
-							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "-->Orange led is on"), 500);
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Orange led is on\n"), 500);
 						led_green = false;
 						led_orange = true;
 						led_red = false;
 						led_blue = false;
 
-						led_state = true;
 					}
 					else if(rx2_buffer[0] == 'a'){
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_15, GPIO_PIN_RESET);
 						if(led_red != true)
-							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "-->Red led is on"), 500);
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Red led is on\n"), 500);
 						led_green = false;
 						led_orange = false;
 						led_red = true;
 						led_blue = false;
 
-						led_state = true;
 					}
 					else if(rx2_buffer[0] == 'w'){
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14, GPIO_PIN_RESET);
 						if(led_blue != true)
-							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "-->Blue led is on"), 500);
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Blue led is on\n"), 500);
 						led_green = false;
 						led_orange = false;
 						led_red = false;
 						led_blue = true;
 
-						led_state = true;
 					}
 					break;
 				}
