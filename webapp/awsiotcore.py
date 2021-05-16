@@ -72,11 +72,21 @@ def publishMessage():
     numData=0
     
 
-# def publishMessage(data):
-#     print('Publishing data to iot/1/test')
-#     global awsMQTTClient
-#     awsMQTTClient.publish(
-#         topic="iot/1/test",
-#         QoS=1,
-#         payload=json.dumps(data)
-#     )
+def requestDataDynamoDB(time):
+    URL = "https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/"
+    # headers
+    headers = {"Content-Type":"application/json"}
+    # querysting parameter
+    params = {"time":time}
+    # for Post
+    data= {}
+
+    response = requests.request("GET", URL, params=params, headers=headers)
+    if response.status_code != 200:
+        print("ERROR: Something went wrong with the request. Status Code: " + str(response.status_code))
+        print(response.headers)
+    else:
+        print("API Response Recieved: " + str(response.status_code))
+    print(json.dumps(response.json(), indent=3))
+    return response
+
