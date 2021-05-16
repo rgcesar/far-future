@@ -18,7 +18,6 @@ class Commands : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_commands)
         val app : FarFutureApp = application as FarFutureApp
-        val socket : Socket? = app.getSocket()
 
 
 
@@ -26,6 +25,7 @@ class Commands : AppCompatActivity() {
 
     }
 
+    /*
     fun send_light_on_command(view: View) {
         val app : FarFutureApp = application as FarFutureApp
         val socket : Socket? = app.getSocket()
@@ -75,6 +75,7 @@ class Commands : AppCompatActivity() {
         }
         socket.emit("fanoff")
     }
+    */
 
     fun onBackClick (view : View) {
         val intent = Intent(this, MainActivity::class.java)
@@ -84,6 +85,6 @@ class Commands : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         val app : FarFutureApp = application as FarFutureApp
-        app.disconnectSocket()
+        //app.disconnectSocket()
     }
 }
