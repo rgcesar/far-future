@@ -8,13 +8,30 @@
     //});
 }*/
 
+var selectChart = document.getElementById("selectchart");
 $(document).ready(function(){
 
     var socket = io();
+    var time;
     socket.on('my response', function(msg) {
         socket.emit('server')
         //$('#log').replaceWith('<p>Received: ' + msg.data + '</p>');
         log.innerText = 'Plant Status: ' + msg.data;
+
+        //$('#' + msg.who + 'v').val(msg.data);
+    });
+    socket.on('overrideon', function(msg) {
+        //socket.emit('server')
+        //$('#log').replaceWith('<p>Received: ' + msg.data + '</p>');
+        override.innerText = 'automation is disabled';
+        //$('#' + msg.who + 'v').val(msg.data);
+    });
+
+    socket.on('overrideoff', function(msg) {
+        //socket.emit('server')
+        //$('#log').replaceWith('<p>Received: ' + msg.data + '</p>');
+        override.innerText = '';
+        //$('#' + msg.who + 'v').val(msg.data);
     });
 
     
@@ -65,9 +82,41 @@ $(document).ready(function(){
             }
         };
 
+        // Get weather data for seattle
+        $.getJSON('http://api.openweathermap.org/data/2.5/weather?q=Seattle&appid=26bac2f5c6fae77e59ff9cc45e16fbaf&units=metric', function(wjdata) {
+            //const wjdata = JSON.parse(wdata);
+            const icon_type = 'http://openweathermap.org/img/wn/' + wjdata.weather[0].icon + '@2x.png';
+            $("#wicon").attr("src", icon_type);
+            weather.innerText = '' + '         Hi: ' + wjdata.main.temp_min + ' \n       Low: ' + wjdata.main.temp_max;
+         }); 
+
+         // Get data, the past 24hrs
+         var data24 = [];
+         var d = new Date(new Date() -  (60 * 60 * 24 * 1000));
+         var n = d.toISOString();
+         n = n.substr(0,9)
+         for (var i = 0; i < 24; i++) {
+             //data24[i] = $.getJSON(('https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/?time=' + n + ' ' + i).toString())
+             data24[i] = $.getJSON("https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/?time=2021-05-16+16");
+         }
+        
+
+
+        
+        
+
         const context = document.getElementById('canvas').getContext('2d');
 
         const lineChart = new Chart(context, config);
+
+        
+
+        if (selectChart = "temp") {
+
+            //config.data.labels.push(jdata.time);
+            //config.data.datasets[0].data.push(jdata.temp);
+            //lineChart.update();
+        }
 
         //const source = new EventSource("/chart-data");
 
@@ -93,14 +142,17 @@ $(document).ready(function(){
         soilmoisture.innerText = 'Soil Moisture: ' + jdata.soilmoist + ' % ';
         lightlevel.innerText = 'Light Level: ' + jdata.lightlevel + ' % ';
         timed.innerText = 'Server Time: ' + jdata.time;
+        //time = jdata.time.substr(0,9);
 
-        if (config.data.labels.length === 75) {
-            config.data.labels.shift();
-            config.data.datasets[0].data.shift();
+        if(selectChart == "tempnow") {
+            if (config.data.labels.length === 75) {
+                config.data.labels.shift();
+                config.data.datasets[0].data.shift();
+            }
+            config.data.labels.push(jdata.time);
+            config.data.datasets[0].data.push(jdata.temp);
+            lineChart.update();
         }
-        config.data.labels.push(jdata.time);
-        config.data.datasets[0].data.push(jdata.temp);
-        lineChart.update();
 
     });
 
@@ -122,6 +174,26 @@ $(document).ready(function(){
 
     $('#dispense').click(function(event){
         socket.emit('water');
+    });
+
+    $('input.sync').on('input', function(event) {
+        socket.emit('Slider value changed', {
+            who: $(this).attr('id'),
+            data: $(this).val()
+        });
+        return false;
+    });
+
+    socket.on('update value', function(msg) {
+        console.log('Slider value updated');
+        $('#' + msg.who).val(msg.data);
+        if (msg.who != 'temps') {
+            $('#' + msg.who + 'v').val(msg.data + '%');
+        } else {
+            $('#' + msg.who + 'v').val(msg.data + ' °C');
+        }
+
+
     });
     
 });

@@ -1,10 +1,10 @@
 import RPi.GPIO as GPIO
 import time
-import Adafruit_ADS1x15
+#import Adafruit_ADS1x15
 #import adafruit_ads1x15.ads1115 as ADS
 import board
 import busio
-i2c = busio.I2C(board.SCL, board.SDA)
+#i2c = busio.I2C(board.SCL, board.SDA)
 
 import math
  
@@ -55,12 +55,15 @@ def light(light_value):
 def soilmoist():
     # soil moisture on port 0
     return 100 - (100 * (adc.read_adc(0, gain=1) / 32767))
+    #return 50
 
 def lightsensor():
     return 100 - (100 * (adc.read_adc(1, gain=1) / 32767))
+    #return 50
 
 def waterlevel():
     return adc.read_adc(2, gain=2)
+    #return 50
 
 def fan(fan_value):
     if fan_value:

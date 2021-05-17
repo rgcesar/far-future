@@ -34,6 +34,12 @@ socketio.sleep(3)
 #global fan0
 light0 = 0
 fan0 = 0
+userctl = 0 # variable to select automation
+values = {
+    'soils': 100,
+    'lights': 100,
+    'temps': 100
+}
 
 
 
@@ -55,6 +61,7 @@ args = parser.parse_args()
 
 
 
+
 def read_bme():
     port.flushInput()
     socketio.sleep(0)
@@ -63,10 +70,11 @@ def read_bme():
     rcv = port.readline() # read in bytes
     rcvs = repr(rcv) # turn it into a string
     # python regex to extract three floats
-    rcvs = re.findall(r"[-+.]?\d*\.\d+|\d+", rcvs) 
+    rcvs = re.findall(r"[-+.]?\d*\.\d+|\d+", rcvs)
+   
     if len(rcvs) != 3:
         return ['0','0','0']
-    print(rcvs)
+    #print(rcvs)
     return rcvs
 
 
@@ -113,16 +121,26 @@ def plant():
 @socketio.on('connect')
 def test_connect():
     print("client has connected")
-    bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
+    #bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
+ 
+    socketio.emit('update value', {'soils':values['soils']}, broadcast=True)
+    socketio.emit('update value', {'lights':values['lights']})
+    socketio.emit('update value', {'temps':values['temps']})
+    #socketio.emit('update value', message, broadcast=True)
+
     socketio.emit('my response',  {'data':'Healthy'})
 
 @socketio.on('lighton')
-def light_on():
+def light_on(ctl=1):
     # toggle the light
+    global userctl
+    userctl = ctl
     light(1)
     
 @socketio.on('lightoff')
-def light_off():
+def light_off(ctl=1):
+    global userctl
+    userctl = ctl
     light(0)
 
 @socketio.on('water')
@@ -131,18 +149,39 @@ def water_plant():
     dispense(2)
 
 @socketio.on('fanon')
-def fan_on():
+def fan_on(ctl=1):
     # toggle the fan
     #global fan0
+    global userctl
+    userctl = ctl
     fan(0)
     #fan0 = ~fan0
 
 @socketio.on('fanoff')
-def fan_off():
+def fan_off(ctl=1):
+    global userctl
+    userctl = ctl
     fan(1)
+
+@socketio.on('Slider value changed')
+def value_changed(message):
+    global userctl
+    userctl = 0
+    socketio.emit('overrideoff',  '')
+    values[message['who']] = message['data']
+    socketio.emit('update value', message, broadcast=True)
+
+@socketio.on('chart')
+def get_chart(message):
+    response_aws = requests.get("https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/?time=2021-05-16+16").text
+    response_aws
+    socketio.emit('overrideoff',  '')
+    values[message['who']] = message['data']
+    socketio.emit('update value', message, broadcast=True)
 
 @socketio.on('server')
 def temp_handle():
+    global userctl
     while True:
         time_now = datetime.datetime.now()
         timeString = time_now.strftime("%Y-%m-%d %H:%M:%S")
@@ -161,9 +200,23 @@ def temp_handle():
             "soilmoist": str("{:.1f}".format(moist)),
             "lightlevel": str("{:.1f}".format(light_level)),
         }
+        if userctl == 0:
+            socketio.emit('overrideoff',  '')
+            if int(float(light_level)) < int(values['lights']) :
+                light_on(0)
+            else:
+                light_off(0)
+            if int(float(t)) > int(values['temps']):
+                fan_on(0)
+            else: fan_off(0)
+            if int(float(moist)) < int(values['soils']):
+                water_plant()
+        else:
+            socketio.emit('overrideon',  '')
+        
         storeMessage()
         if time_now.minute == 0:
-            publishMessage()
+           publishMessage()
         socketio.emit('client',  json.dumps(info))
         
 @app.route('/stream')

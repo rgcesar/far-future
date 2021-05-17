@@ -31,6 +31,8 @@
    	</a>
       <div class="card-body">
         <h5 class="card-title" id="log">Plant Status: Healthy</h5>
+        <img id="wicon" src=""/>
+        <h5 class="card-text" id="weather"> Weather: </h5>
         <h5 class="card-text" id="temp"> Temp: </h5>
         <h5 class="card-text" id="humidity"> Humidity: </h5>
         <h5 class="card-text" id="pressure">  Pressure: </h5>
@@ -47,17 +49,37 @@
     <!-- Temperature Card -->
     <div class="card my-5 shadow-lg mb-5 bg-white rounded">
       <div class="card-header text-center">
-        <h2>Commands</h2>
+        <h2>Commands and Automation Settings</h2>
       </div>
       
       <div class="card-body">
         <!--h5 class="card-title" >Temp: temp C°</h5-->
         <p class="card-text"></p>
+        <h5 class="card-text" style="color:red" id="override"></h5>
         <button type="button"  class="btn btn-primary m-1" id="fanoff">Fan off</button>
         <button type="button"  class="btn btn-primary m-1" id="fanon">Fan on</button>
         <button type="button"  class="btn btn-primary m-1" id="lightoff">Light Off</button>
         <button type="button"  class="btn btn-primary m-1" id="lighton">Light On</button>
         <button type="button"  class="btn btn-primary m-1" id="dispense">Dispense</button>
+
+        <form class="mt-5">
+          <div class="form-group">
+             <label for="formControlRange">Water plant when soil moisture falls below this level:</label>
+             <input type="range" class="form-control-range sync" id="soils" min="0" max="100" value="{{soils}}">
+             <output type="text" id="soilsv" value="">
+          </div>
+          <div class="form-group">
+             <label for="formControlRange">Turn on light when light level falls below this level:</label>
+             <input type="range" class="form-control-range sync" id="lights" min="0" max="100" value="{{lights}}">
+             <output type="text" id="lightsv" value="">
+          </div>
+          <div class="form-group">
+            <label for="formControlRange">Turn on fan when temperature exceeds this value (C):</label>
+            <input type="range" class="form-control-range sync" id="temps" min="10" max="50" value="{{temps}}">
+            <output type="text" id="tempsv" value="">
+         </div>
+       </form>
+
         <!--a href="#" class="btn btn-primary">Toggle Light</a>
         <a href="#" class="btn btn-primary">Dispense 4 seconds</a-->
       </div>
@@ -71,6 +93,15 @@
       <div class="card-body">
         <!--h5 class="card-title">Historical Data</h5-->
         <p class="card-text"></p>
+        <label for="selectchart">Select sensor (past 24hr): </label>
+        <select id="selectchart">
+          <option value="tempnow">Current Temperature</option>
+          <option value="temp">Temperature</option>
+          <option value="hum">Humidity</option>
+          <option value="soil">Soil Moisture</option>
+          <option value="lightl">Light Level</option>
+          <option value="pressure">Baro. Pressure</option>
+      </select>
         <canvas  id="canvas"></canvas>
         <a href="#" class="btn btn-primary">Download</a>
       </div>
