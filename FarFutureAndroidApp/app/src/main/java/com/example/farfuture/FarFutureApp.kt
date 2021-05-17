@@ -2,13 +2,24 @@ package com.example.farfuture
 
 import android.app.Application
 import android.util.Log
+import com.amplifyframework.AmplifyException
+import com.amplifyframework.api.ApiException
+import com.amplifyframework.api.aws.AWSApiPlugin
 import com.amplifyframework.api.rest.RestOptions
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
+import com.amplifyframework.core.Amplify.API
+import com.amplifyframework.core.Amplify.Auth
 import com.amplifyframework.kotlin.core.Amplify
-import io.socket.client.IO
-import io.socket.client.Socket
+
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import java.net.URI
 import java.net.URISyntaxException
+
+import io.socket.client.IO
+import io.socket.client.Socket
 
 
 import java.time.LocalDateTime
@@ -21,7 +32,7 @@ import kotlin.concurrent.thread
 
 class FarFutureApp : Application() {
 
-    private val URL = "http://b14b098b05d2.ngrok.io/"
+    private val URL = "http://8092eca44ed0.ngrok.io/"
     private var socket : Socket? = null
     private val SOCKET_TAG = "SocketIO"
 
@@ -50,8 +61,8 @@ class FarFutureApp : Application() {
         //Humidity = arrayListOf(3, 2, 3, 4, 5)
         //LightLevel = arrayListOf(4, 2, -1, 4, 5)
 
-        try {
 
+        try {
             val uri: URI = URI.create(URL)
             val options = IO.Options()
             options.reconnection = true
@@ -64,6 +75,7 @@ class FarFutureApp : Application() {
         val socket = socket
 
         if (socket != null) {
+
             socket.on(Socket.EVENT_CONNECT) {
                 Log.i(SOCKET_TAG, "Socket connected.")
 
@@ -78,7 +90,8 @@ class FarFutureApp : Application() {
                 //Log.d(SOCKET_TAG, args[0] as String)
                 socket.emit("server", "server")
             }
-            socket.on("client") { args ->
+
+            socket.on("website_data") { args ->
                 Log.d(SOCKET_TAG, args[0] as String)
                 // time format "%Y-%m-%d %H:%M:%S"
 
@@ -109,7 +122,8 @@ class FarFutureApp : Application() {
 
 
 
-        /*
+
+
         try {
             Amplify.addPlugin(AWSApiPlugin())
             Amplify.addPlugin(AWSCognitoAuthPlugin())
@@ -119,12 +133,12 @@ class FarFutureApp : Application() {
             Log.e("Amplify", "Could not initialize Amplify", error)
         }
 
+        Thread.sleep(20)
+        val response = blockingTasks()
 
-        val request = RestOptions.builder()
-            .addPath("/todo/1")
-            .addBody("{\"name\":\"Mow the lawn\"}".toByteArray())
-            .build()
-        */
+        Log.i("Amplify (Return from blocking)", response.toString())
+
+
     }
 
     fun connectSocket() {
@@ -146,13 +160,8 @@ class FarFutureApp : Application() {
         return null
     }
 
-    suspend fun  put(request: RestOptions) {
-        Amplify.API.put(request,
-            "api"
-        )
-    }
 
-    fun parseDateString (dateString : String) : Date {
+    private fun parseDateString (dateString : String) : Date {
         //"%Y-%m-%d %H:%M:%S"
         var year : Int = 0
         var month : Int = 0
@@ -169,6 +178,37 @@ class FarFutureApp : Application() {
         second = split[5].toInt()
         val d1 : LocalDateTime = LocalDateTime.of(year, month, date, hour, minute, second)
         return Date.from(d1.atZone(ZoneId.systemDefault()).toInstant())
+    }
+
+
+    fun blockingTasks() = runBlocking {
+
+        val serverGet : Deferred<JSONObject?> = async {
+            //disconnectSocket()
+            val res = letsGet()
+            //connectSocket()
+            res
+        }
+
+        Log.i("Amplify", serverGet.await().toString())
+        return@runBlocking serverGet.await()
+    }
+
+    suspend fun letsGet () : JSONObject? {
+        val request = RestOptions.builder()
+            .addPath("/plantdata")
+            .addQueryParameters(mapOf("time" to "2021-05-13 16"))
+            .build()
+
+        try {
+            val response = Amplify.API.get(request)
+            Log.i("Amplify", "GET succeeded: ${response.data}")
+            return response.data.asJSONObject()
+        } catch (error : ApiException) {
+            Log.e("Amplify", "GET failed", error)
+        }
+        return null
+
     }
 }
 

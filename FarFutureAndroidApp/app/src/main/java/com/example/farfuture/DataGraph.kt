@@ -93,22 +93,30 @@ class DataGraph : AppCompatActivity() {
                     //newSeries = LineGraphSeries<DataPoint>(intArrToDataPointArr(app.Humidity))
                     newSeries = LineGraphSeries<DataPoint>(intArrToDatePointArr(app.Humidity, app.Time))
                     //Log.d("Graph", "elements:" + app.Humidity)
+                    app.Humidity.max()?.let { graph.viewport.setMaxY(it.toDouble() * 1.5) }
+                    graph.gridLabelRenderer.verticalAxisTitle = "Humidity (%)"//resources.getStringArray(R.array.data_types_array)[0]
                 }
                 data_type.equals("Temperature") -> {
                     Log.d("Graph", "Temperature selected")
                     //newSeries = LineGraphSeries<DataPoint>(intArrToDataPointArr(app.Tempurature))
                     newSeries = LineGraphSeries<DataPoint>(intArrToDatePointArr(app.Tempurature, app.Time))
                     //Log.d("Graph", "elements:" + app.Tempurature)
+                    app.Tempurature.max()?.let { graph.viewport.setMaxY(it.toDouble() * 1.5) }
+                    graph.gridLabelRenderer.verticalAxisTitle = "Tempurature (C°)"//resources.getStringArray(R.array.data_types_array)[0]
                 }
                 data_type.equals("Light Level") -> {
                     Log.d("Graph", "Light Level selected")
                     //newSeries = LineGraphSeries<DataPoint>(intArrToDataPointArr(app.LightLevel))
                     newSeries = LineGraphSeries<DataPoint>(intArrToDatePointArr(app.LightLevel, app.Time))
+                    app.LightLevel.max()?.let { graph.viewport.setMaxY(it.toDouble() * 1.5) }
+                    graph.gridLabelRenderer.verticalAxisTitle = "Light Level"
                 }
                 data_type.equals("Pressure") -> {
                     Log.d("Graph", "Pressure selected")
                     //newSeries = LineGraphSeries<DataPoint>(intArrToDataPointArr(app.Pressure))
                     newSeries = LineGraphSeries<DataPoint>(intArrToDatePointArr(app.Pressure, app.Time))
+                    app.Pressure.max()?.let { graph.viewport.setMaxY(it.toDouble() * 1.5) }
+                    graph.gridLabelRenderer.verticalAxisTitle = "Humidity (hPa)"
                 }
             }
 
@@ -119,9 +127,13 @@ class DataGraph : AppCompatActivity() {
                 //graph.gridLabelRenderer.numVerticalLabels = 10
                 //graph.viewport.setMinX(app.Time[0].time.toDouble())
                 //graph.viewport.setMaxX(app.Time[app.Time.size - 1].time.toDouble())
+
                 Log.d("Graph", "Elements:" + app.Time.size.toString())
                 graph.gridLabelRenderer.setHumanRounding(true)
                 graph.addSeries(newSeries)
+                graph.viewport.setMinY(0.0)
+                graph.gridLabelRenderer.horizontalAxisTitle = "Time"
+                graph.viewport.isYAxisBoundsManual = true
             }
         }
     }
