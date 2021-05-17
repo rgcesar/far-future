@@ -25,15 +25,8 @@ jsonList = []
 
 def test():
     bootAWSClient(args.endpoint, args.root_ca, args.key, args.cert)
-    for i in range(0,10):
-        storeJsonList(createSampleJSON())
-    global jsonList
-    time_now = datetime.datetime.now()
-    time = time_now.strftime("%Y-%m-%d %H")
-    publishJson(time)
-    response = requestDataDynamoDB(time)
-    process(response)
-    
+    batchSendDataDynamoDB(12)
+    batchRequestDataDynamoDB(12)
 
 def bootAWSClient(endpoint, root_ca, key, cert):
     global awsMQTTClient
@@ -92,7 +85,6 @@ def publishJson(time):
         'lightlevel': str(float(lightAgg)/numReadings)
     }
     print('Publishing aggregate data to iot/3/test')
-    print(data)
     global awsMQTTClient
     awsMQTTClient.publish(
         topic="iot/3/test",
@@ -116,10 +108,9 @@ def requestDataDynamoDB(time):
         print(response.headers)
     else:
         print("API Response Recieved: " + str(response.status_code))
-    print(json.dumps(response.json(), indent=3))
     return response
 
-def batchSendDataDynamoDB(n, time):
+def batchSendDataDynamoDB(n):
     time_now = datetime.datetime.now()
     for i in range (0,n):
         for j in range(0,10):
@@ -144,14 +135,14 @@ def batchRequestDataDynamoDB(n):
             print("ERROR: Something went wrong with the request. Status Code: " + str(response.status_code))
             print(response.headers)
         else:
-            print("API Response Recieved: " + str(response.status_code))
+            print("API Response Recieved: " + str(response.status_code) + " : Time requested " + time.strftime("%Y-%m-%d %H"))
+            process(response)
         arr.append(response.json())
-        print(json.dumps(response.json(), indent=3))
-    return response
+    return arr
 
 def process(response):
     payload = response.json()
-    print(payload["Items"][0]["payload"]["M"]["humidity"]["S"])
+    print("humditiy = " + payload["Items"][0]["payload"]["M"]["humidity"]["S"])
 
 if __name__ == '__main__':
     test()
