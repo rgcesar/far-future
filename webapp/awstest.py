@@ -1,4 +1,5 @@
 import datetime
+from os import times
 import time
 import json
 import random
@@ -116,6 +117,36 @@ def requestDataDynamoDB(time):
     else:
         print("API Response Recieved: " + str(response.status_code))
     print(json.dumps(response.json(), indent=3))
+    return response
+
+def batchSendDataDynamoDB(n, time):
+    time_now = datetime.datetime.now()
+    for i in range (0,n):
+        for j in range(0,10):
+            storeJsonList(createSampleJSON())
+        timep = time_now - datetime.timedelta(hours=i)
+        publishJson(timep.strftime("%Y-%m-%d %H"))
+        
+def batchRequestDataDynamoDB(n):
+    URL = "https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/"
+    # headers
+    headers = {"Content-Type":"application/json"}
+    # querysting parameter
+    # for Post
+    data= {}
+    arr = []
+    time_now = datetime.datetime.now()
+    for i in range (0,n):
+        time = time_now - datetime.timedelta(hours=i)
+        params = {"time":time.strftime("%Y-%m-%d %H")}
+        response = requests.request("GET", URL, params=params, headers=headers)
+        if response.status_code != 200:
+            print("ERROR: Something went wrong with the request. Status Code: " + str(response.status_code))
+            print(response.headers)
+        else:
+            print("API Response Recieved: " + str(response.status_code))
+        arr.append(response.json())
+        print(json.dumps(response.json(), indent=3))
     return response
 
 def process(response):
