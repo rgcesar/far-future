@@ -2,6 +2,12 @@ import datetime
 import json
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
+tempAgg=0 
+humidityAgg=0
+pressureAgg=0
+soilAgg=0
+lightAgg=0
+numData=0
 
 
 def bootAWSClient(client_id, endpoint, root_ca, key, cert):
@@ -20,18 +26,6 @@ def bootAWSClient(client_id, endpoint, root_ca, key, cert):
 
     print('Initiating IoT Core Topic ...')
     awsMQTTClient.connect()
-    global tempAgg
-    global humidityAgg
-    global pressureAgg
-    global soilAgg
-    global lightAgg
-    global numData
-    tempAgg=0 
-    humidityAgg=0
-    pressureAgg=0
-    soilAgg=0
-    lightAgg=0
-    numData=0
 
 
 def storeMessage(sensorData):
