@@ -15,4 +15,10 @@ class Settings : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        val app : FarFutureApp = application as FarFutureApp
+        app.disconnectSocket()
+    }
 }

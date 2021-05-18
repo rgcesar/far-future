@@ -29,5 +29,6 @@
         <item>Temperature</item>
         <item>Light Level</item>
         <item>Pressure</item>
+        <item>Soil Moisture</item>
     </string-array>
 </resources>
