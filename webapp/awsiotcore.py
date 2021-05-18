@@ -29,6 +29,7 @@ def bootAWSClient(client_id, endpoint, root_ca, key, cert):
     awsMQTTClient.connect()
 
 
+
 def storeMessage(sensorData):
     global tempAgg 
     global humidityAgg
@@ -101,7 +102,7 @@ def batchRequestDataDynamoDB(sensor, n=24):
         time = time_now - datetime.timedelta(hours=i)
         response = requestDataDynamoDB(time.strftime("%Y-%m-%d %H"))
         payload = response.json()
-        time_data.append(time.strftime("%Y-%m-%d %H"))
-        arr.append(payload["Items"][0]["payload"]["M"][sensor]["S"])
-    ret = [[time_data],[arr]]
+        time_data.insert(0,time.strftime("%Y-%m-%d %H"))
+        arr.insert(0, payload["Items"][0]["payload"]["M"][sensor]["S"])
+    ret = [time_data,arr]
     return ret

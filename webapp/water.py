@@ -14,7 +14,7 @@ GPIO.setup(23,GPIO.IN)
 #for i in range(0,5):
 #    print(GPIO.input(23))
 
-adc = Adafruit_ADS1x15.ADS1115()
+#adc = Adafruit_ADS1x15.ADS1115()
 #adc = ADS.ADS1115(i2c)
 #adc.mode = Mode.CONTINUOUS
 GAIN = 1
@@ -54,16 +54,16 @@ def light(light_value):
 
 def soilmoist():
     # soil moisture on port 0
-    return 100 - (100 * (adc.read_adc(0, gain=1) / 32767))
-    #return 50
+    #return 100 - (100 * (adc.read_adc(0, gain=1) / 32767))
+    return 50
 
 def lightsensor():
-    return 100 - (100 * (adc.read_adc(1, gain=1) / 32767))
-    #return 50
+    #return 100 - (100 * (adc.read_adc(1, gain=1) / 32767))
+    return 50
 
 def waterlevel():
-    return adc.read_adc(2, gain=2)
-    #return 50
+    #return adc.read_adc(2, gain=2)
+    return 50
 
 def fan(fan_value):
     if fan_value:

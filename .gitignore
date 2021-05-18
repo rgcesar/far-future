@@ -4,4 +4,4 @@ __pycache__/
 AWSIoT/
 .aws/
 dynamodb_test.py
-frame.jpg
+webapp/frame.jpg

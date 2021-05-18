@@ -8,7 +8,7 @@
     //});
 }*/
 
-var selectChart = document.getElementById("selectchart");
+
 $(document).ready(function(){
 
     var socket = io();
@@ -40,9 +40,9 @@ $(document).ready(function(){
         const config = {
             type: 'line',
             data: {
-                labels: ['Temperature'],
+                labels: ['Sensor Data'],
                 datasets: [{
-                    label: "Temperature (C)",
+                    label: "Sensor Data",
                     backgroundColor: 'rgb(255, 99, 132)',
                     borderColor: 'rgb(255, 99, 132)',
                     data: [],
@@ -53,7 +53,7 @@ $(document).ready(function(){
                 responsive: true,
                 title: {
                     display: true,
-                    text: 'Historical Temperature data'
+                    text: 'Historical 24hr Sensor data'
                 },
                 tooltips: {
                     mode: 'index',
@@ -90,7 +90,7 @@ $(document).ready(function(){
             weather.innerText = '' + '         Hi: ' + wjdata.main.temp_min + ' \n       Low: ' + wjdata.main.temp_max;
          }); 
 
-         // Get data, the past 24hrs
+         /* Get data, the past 24hrs
          var data24 = [];
          var d = new Date(new Date() -  (60 * 60 * 24 * 1000));
          var n = d.toISOString();
@@ -98,7 +98,7 @@ $(document).ready(function(){
          for (var i = 0; i < 24; i++) {
              //data24[i] = $.getJSON(('https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/?time=' + n + ' ' + i).toString())
              data24[i] = $.getJSON("https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/?time=2021-05-16+16");
-         }
+         }*/
         
 
 
@@ -156,6 +156,19 @@ $(document).ready(function(){
 
     });
 
+    // Chart data
+    socket.on('chart_data', function(msg) {
+        // 'time' 'temp' 'humidity' 'pressure' 'soilmoist' 'lightlevel'
+        const sdata = JSON.parse(msg);
+        console.log(sdata[0]);
+        console.log(sdata[1]);
+        config.data.labels = (sdata[0]);
+        config.data.datasets[0].data = sdata[1];
+        lineChart.update();
+  
+
+    });
+
     $('#fanoff').click(function(event){
         socket.emit('fanoff');
     });
@@ -183,6 +196,12 @@ $(document).ready(function(){
         });
         return false;
     });
+
+
+    $("#selectchart").change(function() {
+        socket.emit('chart', $('#selectchart').val());
+        console.log('Got chart data');
+    })
 
     socket.on('update value', function(msg) {
         console.log('Slider value updated');

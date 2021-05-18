@@ -8,7 +8,7 @@ from gpiozero import CPUTemperature
 import eventlet
 from random import randint
 import json
-from awsiotcore import bootAWSClient, storeMessage, publishMessage
+from awsiotcore import storeMessage, publishMessage, batchRequestDataDynamoDB
 import argparse
 import re
 import cv2
@@ -24,7 +24,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
 #async_mode = 'eventlet'
 socketio = SocketIO(app)
-cpu = CPUTemperature()
+#cpu = CPUTemperature()
 port = serial.Serial("/dev/rfcomm0", baudrate=9600, timeout=3.0)
 vc = cv2.VideoCapture(0) 
 setup()
@@ -57,6 +57,7 @@ parser.add_argument('--signing-region', default='us-west-2', help="If you specif
     "is the region that will be used for computing the Sigv4 signature")
 
 args = parser.parse_args()
+
 
 
 
@@ -173,11 +174,9 @@ def value_changed(message):
 
 @socketio.on('chart')
 def get_chart(message):
-    response_aws = requests.get("https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/?time=2021-05-16+16").text
-    response_aws
-    socketio.emit('overrideoff',  '')
-    values[message['who']] = message['data']
-    socketio.emit('update value', message, broadcast=True)
+    sdata = batchRequestDataDynamoDB(message, 12)
+    print(sdata)
+    socketio.emit('chart_data',  json.dumps(sdata))
 
 @socketio.on('server')
 def temp_handle():
