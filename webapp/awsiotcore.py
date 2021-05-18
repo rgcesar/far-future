@@ -92,3 +92,12 @@ def requestDataDynamoDB(time):
     print(json.dumps(response.json(), indent=3))
     return response
 
+def batchRequestDataDynamoDB(sensor, n=24):
+    time_now = datetime.datetime.now()
+    arr = []
+    for i in range(0,n):
+        time = time_now - datetime.timedelta(hours=i)
+        response = requestDataDynamoDB(time.strftime("%Y-%m-%d %H"))
+        payload = response.json()
+        arr.append(payload["Items"][0]["payload"]["M"][sensor]["S"])
+    return arr

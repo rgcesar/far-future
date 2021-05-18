@@ -25,7 +25,7 @@ jsonList = []
 
 def test():
     bootAWSClient(args.endpoint, args.root_ca, args.key, args.cert)
-    batchSendDataDynamoDB(12)
+    # batchSendDataDynamoDB(12)
     batchRequestDataDynamoDB(12)
 
 def bootAWSClient(endpoint, root_ca, key, cert):
