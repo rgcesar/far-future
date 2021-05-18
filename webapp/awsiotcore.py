@@ -1,5 +1,6 @@
 import datetime
 import json
+import requests
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
 tempAgg=0 
@@ -95,9 +96,12 @@ def requestDataDynamoDB(time):
 def batchRequestDataDynamoDB(sensor, n=24):
     time_now = datetime.datetime.now()
     arr = []
+    time_data = []
     for i in range(0,n):
         time = time_now - datetime.timedelta(hours=i)
         response = requestDataDynamoDB(time.strftime("%Y-%m-%d %H"))
         payload = response.json()
+        time_data.append(time.strftime("%Y-%m-%d %H"))
         arr.append(payload["Items"][0]["payload"]["M"][sensor]["S"])
-    return arr
+    ret = [[time_data],[arr]]
+    return ret
