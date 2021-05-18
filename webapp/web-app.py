@@ -8,7 +8,7 @@ from gpiozero import CPUTemperature
 import eventlet
 from random import randint
 import json
-from awsiotcore import storeMessage, publishMessage, batchRequestDataDynamoDB
+from awsiotcore import bootAWSClient, storeMessage, publishMessage, batchRequestDataDynamoDB
 import argparse
 import re
 import cv2
@@ -119,10 +119,11 @@ def plant():
     return render_template('index.html', **templateData)
 
 
+
 @socketio.on('connect')
 def test_connect():
     print("client has connected")
-    #bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
+    bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
  
     socketio.emit('update value', {'soils':values['soils']}, broadcast=True)
     socketio.emit('update value', {'lights':values['lights']})
@@ -174,8 +175,9 @@ def value_changed(message):
 
 @socketio.on('chart')
 def get_chart(message):
+    #print("message = " + message)
     sdata = batchRequestDataDynamoDB(message)
-    print(sdata)
+    #print(sdata)
     socketio.emit('chart_data',  json.dumps(sdata))
 
 @socketio.on('server')
