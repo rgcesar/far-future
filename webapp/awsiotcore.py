@@ -10,6 +10,12 @@ soilAgg=0
 lightAgg=0
 numData=0
 
+tempData = []
+humidityData = []
+pressureData = []
+soilData = []
+lightData = []
+timeData = []
 
 def bootAWSClient(client_id, endpoint, root_ca, key, cert):
     global awsMQTTClient
@@ -27,6 +33,7 @@ def bootAWSClient(client_id, endpoint, root_ca, key, cert):
 
     print('Initiating IoT Core Topic ...')
     awsMQTTClient.connect()
+    getHistoricalDataDynamoDB(24)
 
 
 
@@ -94,15 +101,43 @@ def requestDataDynamoDB(time):
     print(json.dumps(response.json(), indent=3))
     return response
 
-def batchRequestDataDynamoDB(sensor, n=24):
+def getHistoricalDataDynamoDB(n=24):
     time_now = datetime.datetime.now()
-    arr = []
-    time_data = []
+    global tempData
+    global humidityData
+    global pressureData
+    global soilData
+    global lightData
+    global timeData
     for i in range(0,n):
         time = time_now - datetime.timedelta(hours=i)
         response = requestDataDynamoDB(time.strftime("%Y-%m-%d %H"))
         payload = response.json()
-        time_data.insert(0,time.strftime("%Y-%m-%d %H"))
-        arr.insert(0, payload["Items"][0]["payload"]["M"][sensor]["S"])
-    ret = [time_data,arr]
-    return ret
+        
+        data = payload["Items"][0]["payload"]["M"]
+        timeData.insert(0,time.strftime("%Y-%m-%d %H"))
+        
+        tempData.insert(0, data["temp"]["S"])
+        humidityData.insert(0, data["humidity"]["S"])
+        pressureData.insert(0, data["pressure"]["S"])
+        soilData.insert(0, data["soilmoist"]["S"])
+        lightData.insert(0, data["lightlevel"]["S"])
+
+def batchRequestDataDynamoDB(sensor):
+    global tempData
+    global humidityData
+    global pressureData
+    global soilData
+    global lightData
+    global timeData
+    if (sensor == "humidity"):
+        return [timeData, humidityData]
+    elif (sensor == "temp"):
+        return [timeData, tempData]
+    elif (sensor == "pressure"):
+        return [timeData, pressureData]
+    elif (sensor == "soilmoist"):
+        return [timeData, soilData]
+    else:
+        print("Error: invalid call to getHistoricalData: " + sensor)
+

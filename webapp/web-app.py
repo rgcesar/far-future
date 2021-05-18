@@ -174,7 +174,7 @@ def value_changed(message):
 
 @socketio.on('chart')
 def get_chart(message):
-    sdata = batchRequestDataDynamoDB(message, 12)
+    sdata = batchRequestDataDynamoDB(message)
     print(sdata)
     socketio.emit('chart_data',  json.dumps(sdata))
 

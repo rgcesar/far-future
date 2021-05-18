@@ -8,7 +8,7 @@ from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import requests
 
 
-
+'''
 parser = argparse.ArgumentParser(description="Send and receive messages through and MQTT connection.")
 parser.add_argument('--endpoint', required=True, help="Your AWS IoT custom endpoint, not including a port. " +
                                                     "Ex: \"abcd123456wxyz-ats.iot.us-east-1.amazonaws.com\"")
@@ -19,14 +19,13 @@ parser.add_argument('--root-ca', required=True, help="File path to root certific
                                     "your trust store.")
 
 args = parser.parse_args()
+'''
 
 global jsonList
 jsonList = []
 
 def test():
-    bootAWSClient(args.endpoint, args.root_ca, args.key, args.cert)
-    # batchSendDataDynamoDB(12)
-    batchRequestDataDynamoDB(12)
+    requestSensorData('humidity', 12)
 
 def bootAWSClient(endpoint, root_ca, key, cert):
     global awsMQTTClient
@@ -144,5 +143,20 @@ def process(response):
     payload = response.json()
     print("humditiy = " + payload["Items"][0]["payload"]["M"]["humidity"]["S"])
 
+def requestSensorData(sensor, n=24):
+    time_now = datetime.datetime.now()
+    arr = []
+    time_data = []
+    for i in range(0,n):
+        time = time_now - datetime.timedelta(hours=i)
+        response = requestDataDynamoDB(time.strftime("%Y-%m-%d %H"))
+        payload = response.json()
+        time_data.append(time.strftime("%Y-%m-%d %H"))
+        arr.append(payload["Items"][0]["payload"]["M"][sensor]["S"])
+    ret = [time_data,arr]
+    print(time_data)
+    print()
+    print(ret[0])
+    
 if __name__ == '__main__':
     test()
