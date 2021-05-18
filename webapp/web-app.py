@@ -213,7 +213,7 @@ def temp_handle():
         else:
             socketio.emit('overrideon',  '')
         
-        storeMessage()
+        storeMessage(info)
         if time_now.minute == 0:
            publishMessage()
         socketio.emit('client',  json.dumps(info))

@@ -44,11 +44,11 @@ def storeMessage(sensorData):
     global soilAgg
     global lightAgg
     global numData
-    tempAgg = tempAgg + int(sensorData["temp"])
-    humidityAgg = humidityAgg + int(sensorData["humidity"])
-    pressureAgg = pressureAgg + int(sensorData["pressure"])
-    soilAgg = soilAgg + int(sensorData["soilmoist"])
-    lightAgg = lightAgg + int(sensorData["light"])
+    tempAgg = tempAgg + int(float(sensorData["temp"]))
+    humidityAgg = humidityAgg + int(float(sensorData["humidity"]))
+    pressureAgg = pressureAgg + int(float(sensorData["pressure"]))
+    soilAgg = soilAgg + int(float(sensorData["soilmoist"]))
+    lightAgg = lightAgg + int(float(sensorData["lightlevel"]))
     numData = numData+1
 
 def publishMessage():
@@ -138,6 +138,8 @@ def batchRequestDataDynamoDB(sensor):
         return [timeData, pressureData]
     elif (sensor == "soilmoist"):
         return [timeData, soilData]
+    elif (sensor == "lightlevel"):
+        return [timeData, lightData]
     else:
         print("Error: invalid call to getHistoricalData: " + sensor)
 
