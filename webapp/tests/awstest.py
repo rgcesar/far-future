@@ -8,7 +8,7 @@ from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import requests
 
 
-'''
+
 parser = argparse.ArgumentParser(description="Send and receive messages through and MQTT connection.")
 parser.add_argument('--endpoint', required=True, help="Your AWS IoT custom endpoint, not including a port. " +
                                                     "Ex: \"abcd123456wxyz-ats.iot.us-east-1.amazonaws.com\"")
@@ -19,13 +19,31 @@ parser.add_argument('--root-ca', required=True, help="File path to root certific
                                     "your trust store.")
 
 args = parser.parse_args()
-'''
+
+
+tempData = []
+humidityData = []
+pressureData = []
+soilData = []
+lightData = []
+timeData = []
 
 global jsonList
 jsonList = []
 
 def test():
-    requestSensorData('humidity', 12)
+    bootAWSClient(args.endpoint, args.root_ca, args.key, args.cert)
+    batchSendDataDynamoDB(2)
+    getHistoricalDataDynamoDB(24)
+    print(batchRequestDataDynamoDB("humidity"))
+    print()
+    print(batchRequestDataDynamoDB("temp"))
+    print()
+    print(batchRequestDataDynamoDB("pressure"))
+    print()
+    print(batchRequestDataDynamoDB("lightlevel"))
+    print()
+    print(batchRequestDataDynamoDB("soilmoist"))
 
 def bootAWSClient(endpoint, root_ca, key, cert):
     global awsMQTTClient
@@ -92,6 +110,15 @@ def publishJson(time):
     )
     jsonList = []
 
+
+def batchSendDataDynamoDB(n):
+    time_now = datetime.datetime.now()
+    for i in range (0,n):
+        for j in range(0,10):
+            storeJsonList(createSampleJSON())
+        timep = time_now - datetime.timedelta(hours=i)
+        publishJson(timep.strftime("%Y-%m-%d %H"))
+
 def requestDataDynamoDB(time):
     URL = "https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/"
     # headers
@@ -107,41 +134,33 @@ def requestDataDynamoDB(time):
         print(response.headers)
     else:
         print("API Response Recieved: " + str(response.status_code))
-    return response
-
-def batchSendDataDynamoDB(n):
-    time_now = datetime.datetime.now()
-    for i in range (0,n):
-        for j in range(0,10):
-            storeJsonList(createSampleJSON())
-        timep = time_now - datetime.timedelta(hours=i)
-        publishJson(timep.strftime("%Y-%m-%d %H"))
-        
-def batchRequestDataDynamoDB(n):
-    URL = "https://tg3po98xd3.execute-api.us-east-2.amazonaws.com/dev/plantdata/"
-    # headers
-    headers = {"Content-Type":"application/json"}
-    # querysting parameter
-    # for Post
-    data= {}
-    arr = []
-    time_now = datetime.datetime.now()
-    for i in range (0,n):
-        time = time_now - datetime.timedelta(hours=i)
-        params = {"time":time.strftime("%Y-%m-%d %H")}
-        response = requests.request("GET", URL, params=params, headers=headers)
-        if response.status_code != 200:
-            print("ERROR: Something went wrong with the request. Status Code: " + str(response.status_code))
-            print(response.headers)
-        else:
-            print("API Response Recieved: " + str(response.status_code) + " : Time requested " + time.strftime("%Y-%m-%d %H"))
-            process(response)
-        arr.append(response.json())
-    return arr
+    return response        
 
 def process(response):
     payload = response.json()
     print("humditiy = " + payload["Items"][0]["payload"]["M"]["humidity"]["S"])
+
+def getHistoricalDataDynamoDB(n=24):
+    time_now = datetime.datetime.now()
+    global tempData
+    global humidityData
+    global pressureData
+    global soilData
+    global lightData
+    global timeData
+    for i in range(0,n):
+        time = time_now - datetime.timedelta(hours=i)
+        response = requestDataDynamoDB(time.strftime("%Y-%m-%d %H"))
+        payload = response.json()
+        
+        data = payload["Items"][0]["payload"]["M"]
+        timeData.insert(0,time.strftime("%Y-%m-%d %H"))
+        
+        tempData.insert(0, data["temp"]["S"])
+        humidityData.insert(0, data["humidity"]["S"])
+        pressureData.insert(0, data["pressure"]["S"])
+        soilData.insert(0, data["soilmoist"]["S"])
+        lightData.insert(0, data["lightlevel"]["S"])
 
 def requestSensorData(sensor, n=24):
     time_now = datetime.datetime.now()
@@ -157,6 +176,27 @@ def requestSensorData(sensor, n=24):
     print(time_data)
     print()
     print(ret[0])
-    
+
+def batchRequestDataDynamoDB(sensor):
+    global tempData
+    global humidityData
+    global pressureData
+    global soilData
+    global lightData
+    global timeData
+    if (sensor == "humidity"):
+        return [timeData, humidityData]
+    elif (sensor == "temp"):
+        return [timeData, tempData]
+    elif (sensor == "pressure"):
+        return [timeData, pressureData]
+    elif (sensor == "soilmoist"):
+        return [timeData, soilData]
+    elif (sensor == "lightlevel"):
+        return[timeData, lightData]
+    else:
+        print("Error: invalid call to getHistoricalData: " + sensor)
+
+
 if __name__ == '__main__':
     test()
