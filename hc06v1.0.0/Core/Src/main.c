@@ -231,6 +231,10 @@ int main(void)
 
 					} else if(rx6_buffer[0] == 'Y'){
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+						led_green = false;
+						led_orange = false;
+						led_red = false;
+						led_blue = false;
 						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Opening USART2 and closing USART6\n\r"), 500); // a message is sent to the interface for closing USART6
 						HAL_Delay(100);
 
