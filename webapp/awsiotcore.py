@@ -98,7 +98,7 @@ def requestDataDynamoDB(time):
         print(response.headers)
     else:
         print("API Response Recieved: " + str(response.status_code))
-    print(json.dumps(response.json(), indent=3))
+    #print(json.dumps(response.json(), indent=3))
     return response
 
 def getHistoricalDataDynamoDB(n=24):
@@ -112,9 +112,15 @@ def getHistoricalDataDynamoDB(n=24):
     for i in range(0,n):
         time = time_now - datetime.timedelta(hours=i)
         response = requestDataDynamoDB(time.strftime("%Y-%m-%d %H"))
+        #print(timeData)
+        print("Time data:")
+        print(time.strftime("%Y-%m-%d %H"))
+        print("\n")
         payload = response.json()
-        
+        if (len(payload["Items"]) == 0):
+            break
         data = payload["Items"][0]["payload"]["M"]
+        # Sort the data
         timeData.insert(0,time.strftime("%Y-%m-%d %H"))
         
         tempData.insert(0, data["temp"]["S"])

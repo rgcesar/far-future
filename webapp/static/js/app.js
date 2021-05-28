@@ -164,6 +164,10 @@ $(document).ready(function(){
         console.log(sdata[1]);
         config.data.labels = (sdata[0]);
         config.data.datasets[0].data = sdata[1];
+	console.log("labels length:");
+	console.log(config.data.labels.length);
+	console.log("datasets length:");
+	console.log(config.data.datasets[0].data.length);
         lineChart.update();
   
 
