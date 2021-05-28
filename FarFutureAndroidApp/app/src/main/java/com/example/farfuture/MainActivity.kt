@@ -3,14 +3,15 @@ package com.example.farfuture
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 
-import com.amazonaws.mobile.auth.core.signin.AuthException
-import com.amplifyframework.AmplifyException
-import com.amplifyframework.api.aws.AWSApiPlugin
 import com.amplifyframework.api.rest.RestOptions
 import com.amplifyframework.core.Amplify
+import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,8 +24,28 @@ class MainActivity : AppCompatActivity() {
             { Log.e("AmplifyQuickstart", "Failed to fetch auth session") }
         )
         */
+        val app : FarFutureApp = application as FarFutureApp
+        val dataDisplay : TextView = findViewById(R.id.topView)
+        dataDisplay.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+        val timeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd\nhh:mm:ss")
+        val updateHandler : Handler = Handler(Looper.getMainLooper())
+        class UpdateRunner() : Runnable {
+            override fun run() {
 
+                val displayString : String = "" +
+                        "Time:\n${app.Time[app.Time.size - 1].format(timeFormat)}\n" +
+                        "Temperature: ${app.Tempurature[app.Tempurature.size-1]}\n" +
+                        "Pressure: ${app.Pressure[app.Pressure.size-1]}\n" +
+                        "Humidity: ${app.Humidity[app.Humidity.size-1]}\n" +
+                        "LightLevel: ${app.LightLevel[app.LightLevel.size-1]}\n" +
+                        "SoilMoisture: ${app.soilMoisture[app.soilMoisture.size-1]}"
+                dataDisplay.text = displayString
 
+                updateHandler.postDelayed(this, 500)
+            }
+
+        }
+        updateHandler.post(UpdateRunner())
     }
 
 
@@ -54,6 +75,12 @@ class MainActivity : AppCompatActivity() {
     fun toSettingsClick (view : View) {
         val intent = Intent(this, Settings::class.java)
         startActivity(intent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        val app : FarFutureApp = application as FarFutureApp
+        app.disconnectSocket()
     }
 
 }

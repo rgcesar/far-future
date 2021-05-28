@@ -94,7 +94,7 @@ UART_HandleTypeDef huart6;
 /* Private variables ---------------------------------------------------------*/
 
 char rx6_buffer[50], tx6_buffer[50], rx2_buffer[50], tx2_buffer[50];
-bool led_state=false, led_red=false, led_orange=false, led_green=false, led_blue=false;
+bool led_red=false, led_orange=false, led_green=false, led_blue=false;
 int mode_state=0, conf_index=0;
 
 /* USER CODE END PV */
@@ -198,35 +198,44 @@ int main(void)
 				if(rx6_buffer[0] == 'o' && rx6_buffer[1] == 'n'){
 
 					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_SET);
-					if(led_state != true)
-						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "Received-->All leds are on\n"), 500);
-					led_state = true;
+					if(led_green == false || led_orange == false || led_red == false || led_blue == false)
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Received-->All LEDs are on\n\r"), 500);
+					led_green = true;
+					led_orange = true;
+					led_red = true;
+					led_blue = true;
 
 				}
 				else if(rx6_buffer[0] == 'o' && rx6_buffer[1] == 'f' && rx6_buffer[2] == 'f'){
 
 					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
-					if(led_state != false)
-						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "Received-->All leds are off\n"), 500);
-					led_state = false;
+					if(led_green == true || led_orange == true || led_red == true || led_blue == true)
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Received-->All LEDs are off\n\r"), 500);
+					led_green = false;
+					led_orange = false;
+					led_red = false;
+					led_blue = false;
 				}
 				break;
 
-			case 1: //Configuration mode
+			case 1: // USART2 mode
 				switch(conf_index){
 
 				case 0:
-					//clear_buffer(); //clear all buffers
 					HAL_UART_Receive(&huart6, (uint8_t*)rx6_buffer, 50, 500);
 
 					if(rx6_buffer[0] == 'N'){
 
-						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Returning to USART6\n"), 500);
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Returning to USART6\n\r"), 500);
 						mode_state = 0;
 
 					} else if(rx6_buffer[0] == 'Y'){
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
-						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Opening USART2\n"), 500); // a message is sent to the interface for closing the com port
+						led_green = false;
+						led_orange = false;
+						led_red = false;
+						led_blue = false;
+						HAL_UART_Transmit(&huart6, (uint8_t *)tx6_buffer, sprintf(tx6_buffer, "/Opening USART2 and closing USART6\n\r"), 500); // a message is sent to the interface for closing USART6
 						HAL_Delay(100);
 
 						__HAL_UART_DISABLE(&huart6);
@@ -237,10 +246,9 @@ int main(void)
 				case 1:
 					HAL_Delay(50);
 					HAL_UART_Receive(&huart2, (uint8_t*)rx2_buffer, 50, 500);
-					led_state = false;
 					if(rx2_buffer[0] == '0'){
 
-						HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "/Opening USART6\n"), 500);
+						HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "/Opening USART6 and closing USART2\n\r"), 500); // a message is sent to the interface for closing USART2
 						__HAL_UART_DISABLE(&huart2);
 						__HAL_UART_ENABLE(&huart6);
 						conf_index = 0;
@@ -252,7 +260,7 @@ int main(void)
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 						if(led_green != true)
-							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Green led is on\n"), 500);
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "/Received-->Green LED is on\n\r"), 500);
 						led_green = true;
 						led_orange = false;
 						led_red = false;
@@ -264,7 +272,7 @@ int main(void)
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 						if(led_orange != true)
-							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Orange led is on\n"), 500);
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "/Received-->Orange LED is on\n\r"), 500);
 						led_green = false;
 						led_orange = true;
 						led_red = false;
@@ -275,7 +283,7 @@ int main(void)
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_15, GPIO_PIN_RESET);
 						if(led_red != true)
-							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Red led is on\n"), 500);
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "/Received-->Red LED is on\n\r"), 500);
 						led_green = false;
 						led_orange = false;
 						led_red = true;
@@ -286,7 +294,7 @@ int main(void)
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14, GPIO_PIN_RESET);
 						if(led_blue != true)
-							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "Received-->Blue led is on\n"), 500);
+							HAL_UART_Transmit(&huart2, (uint8_t *)tx2_buffer, sprintf(tx2_buffer, "/Received-->Blue LED is on\n\r"), 500);
 						led_green = false;
 						led_orange = false;
 						led_red = false;
