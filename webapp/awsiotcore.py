@@ -123,11 +123,14 @@ def getHistoricalDataDynamoDB(n=24):
         # Sort the data
         timeData.insert(0,time.strftime("%Y-%m-%d %H"))
         
-        tempData.insert(0, data["temp"]["S"])
-        humidityData.insert(0, data["humidity"]["S"])
-        pressureData.insert(0, data["pressure"]["S"])
-        soilData.insert(0, data["soilmoist"]["S"])
-        lightData.insert(0, data["lightlevel"]["S"])
+        timeData.sort(key=lambda date: time.strptime(date, "%Y-%m-%d %H"))
+        index = timeData.index(time.strftime("%Y-%m-%d %H"))
+
+        tempData.insert(index, data["temp"]["S"])
+        humidityData.insert(index, data["humidity"]["S"])
+        pressureData.insert(index, data["pressure"]["S"])
+        soilData.insert(index, data["soilmoist"]["S"])
+        lightData.insert(index, data["lightlevel"]["S"])
 
 def batchRequestDataDynamoDB(sensor):
     global tempData

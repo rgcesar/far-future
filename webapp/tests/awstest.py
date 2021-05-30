@@ -33,17 +33,11 @@ jsonList = []
 
 def test():
     bootAWSClient(args.endpoint, args.root_ca, args.key, args.cert)
-    batchSendDataDynamoDB(2)
-    getHistoricalDataDynamoDB(24)
-    print(batchRequestDataDynamoDB("humidity"))
-    print()
-    print(batchRequestDataDynamoDB("temp"))
-    print()
-    print(batchRequestDataDynamoDB("pressure"))
-    print()
-    print(batchRequestDataDynamoDB("lightlevel"))
-    print()
-    print(batchRequestDataDynamoDB("soilmoist"))
+    # batchSendDataDynamoDB(24)
+    # getHistoricalDataDynamoDB(24)
+    # print(batchRequestDataDynamoDB("temp"))
+    getHistoricalDataDynamoDB()
+    print(timeData)
 
 def bootAWSClient(endpoint, root_ca, key, cert):
     global awsMQTTClient
@@ -134,33 +128,13 @@ def requestDataDynamoDB(time):
         print(response.headers)
     else:
         print("API Response Recieved: " + str(response.status_code))
+    # print(json.dumps(response.json(), indent=3))
     return response        
 
 def process(response):
     payload = response.json()
     print("humditiy = " + payload["Items"][0]["payload"]["M"]["humidity"]["S"])
 
-def getHistoricalDataDynamoDB(n=24):
-    time_now = datetime.datetime.now()
-    global tempData
-    global humidityData
-    global pressureData
-    global soilData
-    global lightData
-    global timeData
-    for i in range(0,n):
-        time = time_now - datetime.timedelta(hours=i)
-        response = requestDataDynamoDB(time.strftime("%Y-%m-%d %H"))
-        payload = response.json()
-        
-        data = payload["Items"][0]["payload"]["M"]
-        timeData.insert(0,time.strftime("%Y-%m-%d %H"))
-        
-        tempData.insert(0, data["temp"]["S"])
-        humidityData.insert(0, data["humidity"]["S"])
-        pressureData.insert(0, data["pressure"]["S"])
-        soilData.insert(0, data["soilmoist"]["S"])
-        lightData.insert(0, data["lightlevel"]["S"])
 
 def requestSensorData(sensor, n=24):
     time_now = datetime.datetime.now()
@@ -176,6 +150,46 @@ def requestSensorData(sensor, n=24):
     print(time_data)
     print()
     print(ret[0])
+
+def getHistoricalDataDynamoDB(n=24):
+    time_now = datetime.datetime.now()
+    global tempData
+    global humidityData
+    global pressureData
+    global soilData
+    global lightData
+    global timeData
+    timeValues = []
+    # array of 0-23
+    for i in range (0,n):
+        timeValues.append(i)
+    print(timeValues)
+    
+    for i in range(0,n):
+        timeIndex = random.randint(a=0, b=len(timeValues)-1)
+        timeD = timeValues[timeIndex]
+        # print("timeIndex = " + str(timeIndex) + ": timeD = " + str(timeD))
+        time = time_now - datetime.timedelta(hours=timeD)
+        # remove random time value from timeValues array
+        timeValues.remove(timeD)
+        # print(timeValues)
+        
+        response = requestDataDynamoDB(time.strftime("%Y-%m-%d %H"))
+        payload = response.json()
+        if (len(payload["Items"]) == 0):
+            print("WARNING: No Data Recieved for time: " + time.strftime("%Y-%m-%d %H"))
+            break
+        data = payload["Items"][0]["payload"]["M"]
+        timeData.insert(0,time.strftime("%Y-%m-%d %H"))
+
+        timeData.sort(key=lambda date: time.strptime(date, "%Y-%m-%d %H"))
+        index = timeData.index(time.strftime("%Y-%m-%d %H"))
+
+        tempData.insert(index, data["temp"]["S"])
+        humidityData.insert(index, data["humidity"]["S"])
+        pressureData.insert(index, data["pressure"]["S"])
+        soilData.insert(index, data["soilmoist"]["S"])
+        lightData.insert(index, data["lightlevel"]["S"])
 
 def batchRequestDataDynamoDB(sensor):
     global tempData

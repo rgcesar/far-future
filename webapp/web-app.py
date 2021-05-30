@@ -8,7 +8,7 @@ from gpiozero import CPUTemperature
 import eventlet
 from random import randint
 import json
-from awsiotcore import bootAWSClient, storeMessage, publishMessage, batchRequestDataDynamoDB
+from awsiotcore import bootAWSClient, storeMessage, publishMessage, batchRequestDataDynamoDB, getHistoricalDataDynamoDB
 import argparse
 import re
 import cv2
@@ -218,6 +218,7 @@ def temp_handle():
         storeMessage(info)
         if time_now.minute == 0:
            publishMessage()
+           getHistoricalDataDynamoDB()
         socketio.emit('client',  json.dumps(info))
         
 @app.route('/stream')
