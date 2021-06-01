@@ -37,7 +37,12 @@ def test():
     # getHistoricalDataDynamoDB(24)
     # print(batchRequestDataDynamoDB("temp"))
     getHistoricalDataDynamoDB()
-    print(timeData)
+    print(batchRequestDataDynamoDB("lightlevel"))
+    print(batchRequestDataDynamoDB("soilmoist"))
+    print(batchRequestDataDynamoDB("pressure"))
+    print(batchRequestDataDynamoDB("temp"))
+    print(batchRequestDataDynamoDB("humidity"))
+    
 
 def bootAWSClient(endpoint, root_ca, key, cert):
     global awsMQTTClient
@@ -159,16 +164,24 @@ def getHistoricalDataDynamoDB(n=24):
     global soilData
     global lightData
     global timeData
+    
+    tempData = []
+    humidityData = []
+    pressureData = []
+    soilData = []
+    lightData = []
+    timeData = []
+
     timeValues = []
     # array of 0-23
     for i in range (0,n):
         timeValues.append(i)
-    print(timeValues)
+    print("n = " + str(n))
     
     for i in range(0,n):
         timeIndex = random.randint(a=0, b=len(timeValues)-1)
         timeD = timeValues[timeIndex]
-        # print("timeIndex = " + str(timeIndex) + ": timeD = " + str(timeD))
+        print(str(timeD))
         time = time_now - datetime.timedelta(hours=timeD)
         # remove random time value from timeValues array
         timeValues.remove(timeD)
@@ -178,18 +191,18 @@ def getHistoricalDataDynamoDB(n=24):
         payload = response.json()
         if (len(payload["Items"]) == 0):
             print("WARNING: No Data Recieved for time: " + time.strftime("%Y-%m-%d %H"))
-            break
-        data = payload["Items"][0]["payload"]["M"]
-        timeData.insert(0,time.strftime("%Y-%m-%d %H"))
+        else:
+            data = payload["Items"][0]["payload"]["M"]
+            timeData.insert(0,time.strftime("%Y-%m-%d %H"))
 
-        timeData.sort(key=lambda date: time.strptime(date, "%Y-%m-%d %H"))
-        index = timeData.index(time.strftime("%Y-%m-%d %H"))
+            timeData.sort(key=lambda date: time.strptime(date, "%Y-%m-%d %H"))
+            index = timeData.index(time.strftime("%Y-%m-%d %H"))
 
-        tempData.insert(index, data["temp"]["S"])
-        humidityData.insert(index, data["humidity"]["S"])
-        pressureData.insert(index, data["pressure"]["S"])
-        soilData.insert(index, data["soilmoist"]["S"])
-        lightData.insert(index, data["lightlevel"]["S"])
+            tempData.insert(index, data["temp"]["S"])
+            humidityData.insert(index, data["humidity"]["S"])
+            pressureData.insert(index, data["pressure"]["S"])
+            soilData.insert(index, data["soilmoist"]["S"])
+            lightData.insert(index, data["lightlevel"]["S"])
 
 def batchRequestDataDynamoDB(sensor):
     global tempData
