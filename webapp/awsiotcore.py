@@ -109,6 +109,14 @@ def getHistoricalDataDynamoDB(n=24):
     global soilData
     global lightData
     global timeData
+
+    tempData = []
+    humidityData = []
+    pressureData = []
+    soilData = []
+    lightData = []
+    timeData = []
+    
     for i in range(0,n):
         time = time_now - datetime.timedelta(hours=i)
         response = requestDataDynamoDB(time.strftime("%Y-%m-%d %H"))
@@ -118,19 +126,20 @@ def getHistoricalDataDynamoDB(n=24):
         print("\n")
         payload = response.json()
         if (len(payload["Items"]) == 0):
-            break
-        data = payload["Items"][0]["payload"]["M"]
-        # Sort the data
-        timeData.insert(0,time.strftime("%Y-%m-%d %H"))
-        
-        timeData.sort(key=lambda date: time.strptime(date, "%Y-%m-%d %H"))
-        index = timeData.index(time.strftime("%Y-%m-%d %H"))
+            print("WARNING: No Data Recieved for time: " + time.strftime("%Y-%m-%d %H"))
+        else:
+            data = payload["Items"][0]["payload"]["M"]
+            # Sort the data
+            timeData.insert(0,time.strftime("%Y-%m-%d %H"))
+            
+            timeData.sort(key=lambda date: time.strptime(date, "%Y-%m-%d %H"))
+            index = timeData.index(time.strftime("%Y-%m-%d %H"))
 
-        tempData.insert(index, data["temp"]["S"])
-        humidityData.insert(index, data["humidity"]["S"])
-        pressureData.insert(index, data["pressure"]["S"])
-        soilData.insert(index, data["soilmoist"]["S"])
-        lightData.insert(index, data["lightlevel"]["S"])
+            tempData.insert(index, data["temp"]["S"])
+            humidityData.insert(index, data["humidity"]["S"])
+            pressureData.insert(index, data["pressure"]["S"])
+            soilData.insert(index, data["soilmoist"]["S"])
+            lightData.insert(index, data["lightlevel"]["S"])
 
 def batchRequestDataDynamoDB(sensor):
     global tempData
