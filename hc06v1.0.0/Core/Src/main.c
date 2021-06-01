@@ -195,7 +195,7 @@ int main(void)
 
 				}
 
-				if(rx6_buffer[0] == 'o' && rx6_buffer[1] == 'n'){
+				if(rx6_buffer[0] == '8'){
 
 					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_SET);
 					if(led_green == false || led_orange == false || led_red == false || led_blue == false)
@@ -206,7 +206,7 @@ int main(void)
 					led_blue = true;
 
 				}
-				else if(rx6_buffer[0] == 'o' && rx6_buffer[1] == 'f' && rx6_buffer[2] == 'f'){
+				else if(rx6_buffer[0] == '9'){
 
 					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 					if(led_green == true || led_orange == true || led_red == true || led_blue == true)
