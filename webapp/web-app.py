@@ -59,7 +59,8 @@ parser.add_argument('--signing-region', default='us-west-2', help="If you specif
 args = parser.parse_args()
 
 
-
+bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
+ 
 
 
 
@@ -123,8 +124,7 @@ def plant():
 @socketio.on('connect')
 def test_connect():
     print("client has connected")
-    bootAWSClient(args.client_id, args.endpoint, args.root_ca, args.key, args.cert)
- 
+    
     socketio.emit('update value', {'soils':values['soils']}, broadcast=True)
     socketio.emit('update value', {'lights':values['lights']})
     socketio.emit('update value', {'temps':values['temps']})
