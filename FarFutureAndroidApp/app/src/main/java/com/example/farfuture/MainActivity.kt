@@ -31,15 +31,16 @@ class MainActivity : AppCompatActivity() {
         val updateHandler : Handler = Handler(Looper.getMainLooper())
         class UpdateRunner() : Runnable {
             override fun run() {
-
-                val displayString : String = "" +
-                        "Time:\n${app.Time[app.Time.size - 1].format(timeFormat)}\n" +
-                        "Temperature: ${app.Tempurature[app.Tempurature.size-1]}\n" +
-                        "Pressure: ${app.Pressure[app.Pressure.size-1]}\n" +
-                        "Humidity: ${app.Humidity[app.Humidity.size-1]}\n" +
-                        "LightLevel: ${app.LightLevel[app.LightLevel.size-1]}\n" +
-                        "SoilMoisture: ${app.soilMoisture[app.soilMoisture.size-1]}"
-                dataDisplay.text = displayString
+                if (app.Time.size > 0) {
+                    val displayString: String = "" +
+                            "Time:\n${app.Time[app.Time.size - 1].format(timeFormat)}\n" +
+                            "Temperature: %.2f\n".format(app.Tempurature[app.Tempurature.size - 1]) +
+                            "Pressure: %.2f\n".format(app.Pressure[app.Pressure.size - 1]) +
+                            "Humidity: %.2f\n".format(app.Humidity[app.Humidity.size - 1]) +
+                            "LightLevel: %.2f\n".format(app.LightLevel[app.LightLevel.size - 1]) +
+                            "SoilMoisture: %.2f\n".format(app.soilMoisture[app.soilMoisture.size - 1])
+                    dataDisplay.text = displayString
+                }
 
                 updateHandler.postDelayed(this, 500)
             }

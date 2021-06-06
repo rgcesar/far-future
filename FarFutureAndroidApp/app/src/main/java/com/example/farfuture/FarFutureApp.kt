@@ -39,7 +39,7 @@ import kotlin.concurrent.thread
 
 class FarFutureApp : Application() {
 
-    private val URL = "http://e34feed038dc.ngrok.io/"
+    private val URL = "http://e2110d330fa3.ngrok.io/"
     private var socket : Socket? = null
     private val SOCKET_TAG = "SocketIO"
     private val API_TAG : String = "Amplify-API"
@@ -116,14 +116,26 @@ class FarFutureApp : Application() {
                 val light = jsonObj.getDouble("lightlevel")
                 val moisture = jsonObj.getDouble("soilmoist")
                 Log.i(SOCKET_TAG, "Data received.")
-                Time.add(parseDateString(time))
-                Tempurature.add(temp)
-                Pressure.add(pressure)
-                Humidity.add(humidity)
-                LightLevel.add(light)
-                soilMoisture.add(moisture)
+                val localtime = parseDateString(time)
+
+                if (Time.contains(localtime)) {
+                    val index = Time.indexOf(localtime)
+                    Tempurature[index] = (Tempurature[index] + temp) / 2
+                    Pressure[index] = (Pressure[index] + pressure) / 2
+                    Humidity[index] = (Humidity[index] + humidity) / 2
+                    LightLevel[index] = (LightLevel[index] + light) / 2
+                    soilMoisture[index] = (soilMoisture[index] + moisture) / 2
+                }
+                else {
+                    Time.add(localtime)
+                    Tempurature.add(temp)
+                    Pressure.add(pressure)
+                    Humidity.add(humidity)
+                    LightLevel.add(light)
+                    soilMoisture.add(moisture)
+                }
             }
-            connectSocket()
+
 
             Log.i(SOCKET_TAG, "End setup.")
         } else {
@@ -309,6 +321,9 @@ class FarFutureApp : Application() {
             }
 
         }
+
+        connectSocket()
+
         Log.i(API_TAG, "Parse done.")
         Log.i(API_TAG, "Time: ${Time.toString()}")
         Log.i(API_TAG, "Tempurature: ${Tempurature.toString()}")

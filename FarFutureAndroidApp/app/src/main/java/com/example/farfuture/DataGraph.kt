@@ -43,7 +43,7 @@ class DataGraph : AppCompatActivity() {
         val adapter = ArrayAdapter.createFromResource(this, R.array.data_types_array, android.R.layout.simple_spinner_item)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
-
+        updateGraphInternal(spinner.selectedItem.toString())
 
 
         //app.getSocket()?.emit("server", "server")
@@ -151,12 +151,26 @@ class DataGraph : AppCompatActivity() {
                 //graph.viewport.setMinX(app.Time[0].time.toDouble())
                 //graph.viewport.setMaxX(app.Time[app.Time.size - 1].time.toDouble())
 
-                Log.d("Graph", "Elements:" + app.Time.size.toString())
+                Log.d("Graph", "Elements:" + timeArr!!.size.toString())
+                Log.d("Graph", timeArr.toString())
+                timeArr!!.min().let {
+                    if (it != null) {
+                        graph.viewport.setMinX(it.time.toDouble())
+                    }
+                }
+
+                timeArr!!.max().let {
+                    if (it != null) {
+                        graph.viewport.setMaxX(it.time.toDouble())
+                    }
+                }
+
                 graph.gridLabelRenderer.setHumanRounding(true)
                 graph.addSeries(newSeries)
                 graph.viewport.setMinY(0.0)
                 graph.gridLabelRenderer.horizontalAxisTitle = "Time"
                 graph.viewport.isYAxisBoundsManual = true
+                graph.viewport.isXAxisBoundsManual = true
             }
         }
     }
@@ -176,11 +190,14 @@ class DataGraph : AppCompatActivity() {
         //Log.d("??", doubleList.toString())
         //Log.d("??", dateList.toString())
         Log.d("Graph", "sizes  doublelist:${list.size} datelist:${dateList?.size}")
-
+        //Log.d("Graph", "sizes  doublelist:$list \ndatelist:$dateList")
         val temp = Array(list.size) { i -> DataPoint(dateList?.get(i), list[i])  }
         //val temp = Array(doubleList.size) { i -> DataPoint(i.toDouble(), i.toDouble()) }
 
-
+        /*Log.d("Graph", "Datapoint array:\n")
+        temp.forEach() { it ->
+            Log.d("Graph", it.toString())
+        }*/
         return temp
     }
 
