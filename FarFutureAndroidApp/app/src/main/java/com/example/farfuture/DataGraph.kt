@@ -19,6 +19,7 @@ import java.time.ZoneId
 import java.util.*
 import kotlin.collections.ArrayList
 
+// user input from spinner
 var data_type : String? = null
 
 class DataGraph : AppCompatActivity() {
@@ -29,30 +30,25 @@ class DataGraph : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_datagraph)
 
+        // Setup button to return to main menu
         val backButton = findViewById<Button>(R.id.data_back_button)
-
         backButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
-        val app : FarFutureApp = application as FarFutureApp
-        Log.d("Graph", "TIMESIZE: ${app.Time.size}")
-        //timeArr = MutableList(app.Time.size) { it -> Date.from((app.Time[it] as LocalDateTime).atZone(ZoneId.systemDefault()).toInstant())  }
-        Log.d("Graph", "DATESIZE: ${timeArr?.size}")
+
+        // Set spinner contents
         val spinner = findViewById<Spinner>(R.id.spinner)
         val adapter = ArrayAdapter.createFromResource(this, R.array.data_types_array, android.R.layout.simple_spinner_item)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
         updateGraphInternal(spinner.selectedItem.toString())
 
-
-        //app.getSocket()?.emit("server", "server")
-
+        // Enable date axis labels
         val graph : GraphView = findViewById(R.id.graph)
-
-        var labels : StaticLabelsFormatter = StaticLabelsFormatter(graph)
         graph.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(applicationContext)
 
+        // Spinner user input management
         class myListener : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (parent != null) {
@@ -60,7 +56,6 @@ class DataGraph : AppCompatActivity() {
                 }
                 data_type?.let { updateGraphInternal(it) }
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 data_type = null
             }
@@ -68,6 +63,7 @@ class DataGraph : AppCompatActivity() {
         spinner.onItemSelectedListener = myListener()
 
 
+        // Update graph in real time
         val updateHandler : Handler = Handler(Looper.getMainLooper())
         class updateRunner() : Runnable {
             override fun run() {
@@ -84,6 +80,9 @@ class DataGraph : AppCompatActivity() {
     private fun updateGraphInternal (dataType : String) {
         Log.d("Graph", "\nUpdating Graph")
         val app : FarFutureApp = application as FarFutureApp
+
+        // Copy all data arrays so that inserts don't break
+        // the graphing logic
         timeArr = MutableList(app.Time.size) { it -> Date.from((app.Time[it] as LocalDateTime).atZone(ZoneId.systemDefault()).toInstant())  }
 
         val humidity = ArrayList<Double>()
@@ -102,35 +101,32 @@ class DataGraph : AppCompatActivity() {
         soilMoisture.addAll(app.soilMoisture)
 
         val graph : GraphView = findViewById(R.id.graph)
+
         var newSeries: LineGraphSeries<DataPoint>? = null
+
+        // Select data array based on input from spinner
         if (data_type != null) {
             when {
                 data_type.equals("Humidity") -> {
                     Log.d("Graph", "Humidity selected")
-                    //newSeries = LineGraphSeries<DataPoint>(intArrToDataPointArr(app.Humidity))
                     newSeries = LineGraphSeries<DataPoint>(arrToDatePointArr(humidity, timeArr))
-                    //Log.d("Graph", "elements:" + app.Humidity)
                     app.Humidity.max()?.let { graph.viewport.setMaxY(it.toDouble() * 1.5) }
-                    graph.gridLabelRenderer.verticalAxisTitle = "Humidity (%)"//resources.getStringArray(R.array.data_types_array)[0]
+                    graph.gridLabelRenderer.verticalAxisTitle = "Humidity (%)"
                 }
                 data_type.equals("Temperature") -> {
                     Log.d("Graph", "Temperature selected")
-                    //newSeries = LineGraphSeries<DataPoint>(intArrToDataPointArr(app.Tempurature))
                     newSeries = LineGraphSeries<DataPoint>(arrToDatePointArr(temperature, timeArr))
-                    //Log.d("Graph", "elements:" + app.Tempurature)
                     app.Tempurature.max()?.let { graph.viewport.setMaxY(it.toDouble() * 1.5) }
-                    graph.gridLabelRenderer.verticalAxisTitle = "Temperature (C°)"//resources.getStringArray(R.array.data_types_array)[0]
+                    graph.gridLabelRenderer.verticalAxisTitle = "Temperature (C°)"
                 }
                 data_type.equals("Light Level") -> {
                     Log.d("Graph", "Light Level selected")
-                    //newSeries = LineGraphSeries<DataPoint>(intArrToDataPointArr(app.LightLevel))
                     newSeries = LineGraphSeries<DataPoint>(arrToDatePointArr(lightLevel, timeArr))
                     app.LightLevel.max()?.let { graph.viewport.setMaxY(it.toDouble() * 1.5) }
                     graph.gridLabelRenderer.verticalAxisTitle = "Light Level"
                 }
                 data_type.equals("Pressure") -> {
                     Log.d("Graph", "Pressure selected")
-                    //newSeries = LineGraphSeries<DataPoint>(intArrToDataPointArr(app.Pressure))
                     newSeries = LineGraphSeries<DataPoint>(arrToDatePointArr(pressure, timeArr))
                     app.Pressure.max()?.let { graph.viewport.setMaxY(it.toDouble() * 1.5) }
                     graph.gridLabelRenderer.verticalAxisTitle = "Humidity (hPa)"
@@ -145,70 +141,40 @@ class DataGraph : AppCompatActivity() {
 
             if (newSeries != null) {
                 Log.d("Graph", "New graph generated")
-                graph.removeAllSeries()
-                //graph.gridLabelRenderer.numHorizontalLabels = 7
-                //graph.gridLabelRenderer.numVerticalLabels = 10
-                //graph.viewport.setMinX(app.Time[0].time.toDouble())
-                //graph.viewport.setMaxX(app.Time[app.Time.size - 1].time.toDouble())
-
                 Log.d("Graph", "Elements:" + timeArr!!.size.toString())
                 Log.d("Graph", timeArr.toString())
+
+                // Remove previous graph
+                graph.removeAllSeries()
+
+                // Set xy bounds
                 timeArr!!.min().let {
                     if (it != null) {
                         graph.viewport.setMinX(it.time.toDouble())
                     }
                 }
-
                 timeArr!!.max().let {
                     if (it != null) {
                         graph.viewport.setMaxX(it.time.toDouble())
                     }
                 }
-
-                graph.gridLabelRenderer.setHumanRounding(true)
-                graph.addSeries(newSeries)
                 graph.viewport.setMinY(0.0)
+
+                // Set graph display settings
+                graph.gridLabelRenderer.setHumanRounding(true)
                 graph.gridLabelRenderer.horizontalAxisTitle = "Time"
                 graph.viewport.isYAxisBoundsManual = true
                 graph.viewport.isXAxisBoundsManual = true
+
+                // Add new series
+                graph.addSeries(newSeries)
             }
         }
     }
 
-
-    private fun toDataPointArr (list : MutableList<Double>) : Array<DataPoint> {
-        return Array(list.size) { it -> DataPoint(it.toDouble(), list[it])  }
-    }
-
-    private fun intArrToDataPointArr (list : MutableList<Int>) : Array<DataPoint> {
-        val doubleList = toDoubleList(list)
-        return Array(list.size) { it -> DataPoint(it.toDouble(), doubleList[it])  }
-    }
-
     private fun arrToDatePointArr (list : MutableList<Double>, dateList : MutableList<Date>?) : Array<DataPoint> {
-        //val doubleList = toDoubleList(list)
-        //Log.d("??", doubleList.toString())
-        //Log.d("??", dateList.toString())
         Log.d("Graph", "sizes  doublelist:${list.size} datelist:${dateList?.size}")
-        //Log.d("Graph", "sizes  doublelist:$list \ndatelist:$dateList")
-        val temp = Array(list.size) { i -> DataPoint(dateList?.get(i), list[i])  }
-        //val temp = Array(doubleList.size) { i -> DataPoint(i.toDouble(), i.toDouble()) }
-
-        /*Log.d("Graph", "Datapoint array:\n")
-        temp.forEach() { it ->
-            Log.d("Graph", it.toString())
-        }*/
-        return temp
-    }
-
-    private fun toDoubleList (list : MutableList<Int>) : MutableList<Double> {
-        return MutableList<Double>(list.size) {i -> list[i].toDouble()}
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        val app : FarFutureApp = application as FarFutureApp
-        app.disconnectSocket()
+        return Array(list.size) { i -> DataPoint(dateList?.get(i), list[i])  }
     }
 }
 

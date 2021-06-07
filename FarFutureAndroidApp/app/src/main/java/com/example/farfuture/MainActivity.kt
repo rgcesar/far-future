@@ -5,12 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.widget.TextView
-
-import com.amplifyframework.api.rest.RestOptions
-import com.amplifyframework.core.Amplify
 import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
@@ -18,16 +14,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        /*
-        Amplify.Auth.fetchAuthSession(
-            { Log.i("AmplifyQuickstart", "Auth session = $it") },
-            { Log.e("AmplifyQuickstart", "Failed to fetch auth session") }
-        )
-        */
         val app : FarFutureApp = application as FarFutureApp
         val dataDisplay : TextView = findViewById(R.id.topView)
         dataDisplay.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
         val timeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd\nhh:mm:ss")
+
+        // update live display of sensor data
         val updateHandler : Handler = Handler(Looper.getMainLooper())
         class UpdateRunner() : Runnable {
             override fun run() {
@@ -41,28 +33,13 @@ class MainActivity : AppCompatActivity() {
                             "SoilMoisture: %.2f\n".format(app.soilMoisture[app.soilMoisture.size - 1])
                     dataDisplay.text = displayString
                 }
-
                 updateHandler.postDelayed(this, 500)
             }
-
         }
         updateHandler.post(UpdateRunner())
     }
 
-
-    private fun getTodo() {
-        val request = RestOptions.builder()
-            .addPath("/todo")
-            .build()
-
-
-        Amplify.API.get(request,
-            { Log.i("MyAmplifyApp", "GET succeeded: $it") },
-            { Log.e("MyAmplifyApp", "GET failed.", it) }
-        )
-    }
-
-
+    // Activity movement functions
     fun toGraphClick (view : View) {
         val intent = Intent(this, DataGraph::class.java)
         startActivity(intent)
@@ -76,12 +53,6 @@ class MainActivity : AppCompatActivity() {
     fun toSettingsClick (view : View) {
         val intent = Intent(this, Settings::class.java)
         startActivity(intent)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        val app : FarFutureApp = application as FarFutureApp
-        app.disconnectSocket()
     }
 
 }
