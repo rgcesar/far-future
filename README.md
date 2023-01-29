@@ -9,6 +9,12 @@
 A remotely-controlled automatic plant monitoring and watering system.
 </p>
 
+## Demo
+
+<p align="center">
+<img src="https://github.com/rgcesar/projectimages/blob/main/webpage.gif?raw=true" width="700" />
+</p>
+
 
 
 ## About
@@ -67,19 +73,15 @@ $ python3 ./webapp/web-app.py
 
 After running the script, the webpage will be hosted on the RPi4. 
 
-### Demo
 
-<p align="center">
-<img src="https://github.com/rgcesar/projectimages/blob/main/webpage.gif?raw=true" width="700" />
-</p>
 
-### Project Schedule
+## Project Schedule
 
 <p align="center">
 <img src="https://github.com/rgcesar/projectimages/blob/main/developmentsch.png?raw=true" height="600" />
 </p>
 
-### Diagrams
+## Diagrams
 <p align="center">
 <img src="https://github.com/rgcesar/projectimages/blob/main/design1.png?raw=true" width="500" />
 <img src="https://github.com/rgcesar/projectimages/blob/main/sequencechart.png?raw=true" width="500" />
